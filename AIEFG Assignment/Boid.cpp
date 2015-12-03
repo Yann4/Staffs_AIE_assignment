@@ -1,4 +1,5 @@
 #include "Boid.h"
+#include <iostream>
 
 Boid::Boid()
 {
@@ -9,9 +10,11 @@ Boid::Boid()
 	red = 0;
 	green = 255;
 	blue = 0;
+	velocity.x = 0;
+	velocity.z = 0;
 
-	wanderTarget = position(0, 0);
-	vel = position(0, 0);
+	wanderTarget.x = 0;
+	wanderTarget.z = 0;
 }
 
 Boid::Boid(position pos, float rotation) : pos(pos), rotation(rotation), boidShape(TEAPOT)
@@ -19,90 +22,95 @@ Boid::Boid(position pos, float rotation) : pos(pos), rotation(rotation), boidSha
 	red = 0;
 	green = 255;
 	blue = 0;
+	velocity.x = 0;
+	velocity.z = 0;
 
-	wanderTarget = position(0, 0);
-	vel = position(0, 0);
+	wanderTarget = pos;
 }
 
-float randomClamped()
+float randomInRange(float min, float max)
 {
-	return -1 + static_cast<float>(rand()) / (static_cast<float>(0.5f));
+	return min + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (max - min)));
 }
 
-Force clamp(Force p)
+position Normalise(position p)
 {
-	float mag = p.x * p.x + p.y * p.y;
-	mag = sqrt(mag);
-	float maxSpeed = 0.1;
+	float mag = sqrtf(p.x * p.x + p.z * p.z);
+	p.x /= mag;
+	p.z /= mag;
+	return p;
+}
 
-	if (mag > maxSpeed)
+position Truncate(position p, float maxMag)
+{
+	float mag = sqrtf(p.x * p.x + p.z * p.z);
+	if (mag > maxMag)
 	{
 		p.x /= mag;
-		p.y /= mag;
-		p.x *= maxSpeed;
-		p.y *= maxSpeed;
+		p.z /= mag;
+
+		p.x *= maxMag;
+		p.z *= maxMag;
 	}
 	return p;
 }
 
-position normalise(position pos)
+position Boid::Wander()
 {
-	float mag = pos.x * pos.x + pos.z * pos.z;
-	mag = sqrt(mag);
+	float wanderJitter = 2;
+	float wanderDistance = 2;
+	float wanderRadius = 10;
 
-	pos.x /= mag;
-	pos.z /= mag;
-	return pos;
-}
+	wanderTarget.x += randomInRange(-1, 1) * wanderJitter;
+	wanderTarget.z += randomInRange(-1, 1) * wanderJitter;
 
-Force Boid::wander()
-{
-	float wanderRadius = 1;
-	float wanderDistance = 1;
-	float wanderJitter = 1;
-
-	wanderTarget = position(wanderTarget.x + randomClamped() * wanderJitter, wanderTarget.z + randomClamped() * wanderJitter);
-	wanderTarget = normalise(wanderTarget);
+	wanderTarget = Normalise(wanderTarget);
 
 	wanderTarget.x *= wanderRadius;
 	wanderTarget.z *= wanderRadius;
 
-	position targetLocal = position(wanderTarget.x + wanderDistance, wanderTarget.z);
+	position targetLocal = wanderTarget;
+	targetLocal.x += wanderDistance;
 
 	position targetWorld;
-	//Rotate point
-	targetWorld.x = targetLocal.x * cos(rotation) - targetLocal.x * sin(rotation);
-	targetWorld.z = targetLocal.x * sin(rotation) - targetLocal.z * cos(rotation);
+	targetWorld.x = pos.x + targetLocal.x;
+	targetWorld.z = pos.z + targetLocal.z;
+	targetWorld.x += cos(rotation) * (targetLocal.x) - sin(rotation) * (targetLocal.z);
+	targetWorld.z += sin(rotation) * (targetLocal.x) - cos(rotation) * (targetLocal.z);
 
-	//Translate point
-	targetWorld.x += pos.x;
-	targetWorld.z += pos.z;
 
-	return Force(targetWorld.x - pos.x, targetWorld.z - pos.z);
+	std::cout << "pos world: " << targetWorld.x << ", " << targetWorld.z << std::endl;
+
+	position wanderForce = targetWorld;
+	wanderForce.x -= pos.x;
+	wanderForce.z -= pos.z;
+
+	return wanderForce;
 }
 
-void Boid::Update(int deltaTime)
+void Boid::Update(float delta)
 {
-	deltaTime = 1;
-	Force netForce = Force();
-	Force wanderForce = wander();
+	delta = 0.01f;
 
-	netForce.x += wanderForce.x;
-	netForce.y += wanderForce.y;
+	position wander = Wander();
+	std::cout << "wander: " << wander.x << ", " << wander.z << std::endl;
 
-	netForce = clamp(netForce);
-	netForce.x = -netForce.x;
-	netForce.y = -netForce.y;
-	pos.x = (pos.x * deltaTime) + 0.5f * netForce.x * deltaTime * deltaTime;
-	pos.z = (pos.z * deltaTime) + 0.5f * netForce.y * deltaTime * deltaTime;
+	pos.x += (velocity.x * delta) + 0.5f * (wander.x * (delta * delta));
+	pos.z += (velocity.z * delta) + 0.5f * (wander.z * (delta * delta));
+	std::cout << "pos: " << pos.x << ", " << pos.z << std::endl;
+
+	velocity.x += wander.x * delta;
+	velocity.z += wander.z * delta;
+
+	velocity = Truncate(velocity, maxVelocity);
 }
 
 void Boid::Render()
 {
 	glPushMatrix();
-		glTranslatef(pos.x, 0.5f, pos.z);
-		glRotatef(rotation, 0, 1, 0);
-		glColor3f(red, green, blue);
-		glutSolidTeapot(0.5);
+	glTranslatef(pos.x, 0.5f, pos.z);
+	glRotatef(rotation, 0, 1, 0);
+	glColor3f(red, green, blue);
+	glutSolidTeapot(0.5);
 	glPopMatrix();
 }

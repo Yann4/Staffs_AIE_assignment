@@ -11,10 +11,14 @@ Scene::Scene()
 	m_ScenarioOffset.x = 0.0f;
 	m_ScenarioOffset.z = 0.0f;
 
-	position p;
-	p.x = 9.5;
-	p.z = 20;
-	b = Boid(p, 90.0f);
+	position mazeEntrypoint;
+	mazeEntrypoint.x = 9.5;
+	mazeEntrypoint.z = 20;
+
+	position centre;
+	centre.x = 9.5;
+	centre.z = 10;
+	boid = Boid(centre, 90.0f);
 	return;
 }
 
@@ -79,7 +83,6 @@ void Scene::Render()
        }
     glEnd();
 
-	b.Render();
 	//Draw the Scenario.
 	DrawScenario();
 }
@@ -101,6 +104,8 @@ void Scene::DrawScenario()
 	{
 		m_pWalls[i]->Render();
 	}
+
+	boid.Render();
 }
 
 //Methods to set up pointer arrays to all the wall pieces.
@@ -235,7 +240,7 @@ void Scene::SetUpScenario()
 
 void Scene::UpdateScenario(int a_deltaTime)
 {
-	b.Update(a_deltaTime);
+	boid.Update(a_deltaTime);
 }
 
 //--------------------------------------------------------------------------------------------------------

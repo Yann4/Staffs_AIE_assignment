@@ -21,7 +21,7 @@ private:
 	unsigned int m_iWallQty;
 	position	 m_ScenarioOffset;
 
-	Boid b;
+	Boid boid;
 
 public:
 	Scene();
