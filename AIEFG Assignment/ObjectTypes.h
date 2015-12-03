@@ -45,11 +45,13 @@ typedef struct
 }matrix3x3_type;
 
 //Coordinates in  heightmap.
-typedef struct
+struct position
 {
 	float x;
 	float z;
-}position;
+	position() :x(0), z(0) {}
+	position(float x, float z) :x(x), z(z) {}
+};
 
 //Edge cost
 typedef struct

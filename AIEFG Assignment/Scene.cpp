@@ -1,7 +1,6 @@
 #include "Scene.h"
 #include "gl/gl.h"
 #include "gl/glu.h"
-#include "Boid.h"
 #include <string>
 
 //--------------------------------------------------------------------------------------------------------
@@ -12,6 +11,10 @@ Scene::Scene()
 	m_ScenarioOffset.x = 0.0f;
 	m_ScenarioOffset.z = 0.0f;
 
+	position p;
+	p.x = 9.5;
+	p.z = 20;
+	b = Boid(p, 90.0f);
 	return;
 }
 
@@ -59,11 +62,9 @@ void Scene::Render()
     //Change colour to yellow.
 	glColor3f(0.6f,0.5f,0.2f);
 
-	position p;
-	p.x = 9.5;
-	p.z = 20;
+	
 
-	Boid b = Boid(p, 90.0f);
+	
 
     glBegin(GL_LINES);
        for(iLine = 0; iLine <= length; iLine += spacing)
@@ -234,6 +235,7 @@ void Scene::SetUpScenario()
 
 void Scene::UpdateScenario(int a_deltaTime)
 {
+	b.Update(a_deltaTime);
 }
 
 //--------------------------------------------------------------------------------------------------------

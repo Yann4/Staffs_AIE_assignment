@@ -9,6 +9,8 @@
 #include "Obstacle.h"
 #include "ObjectTypes.h"
 #include <vector>
+#include "Boid.h"
+
 
 using std::vector;
 
@@ -18,6 +20,8 @@ private:
 	Obstacle**	 m_pWalls;
 	unsigned int m_iWallQty;
 	position	 m_ScenarioOffset;
+
+	Boid b;
 
 public:
 	Scene();
