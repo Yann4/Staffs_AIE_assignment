@@ -4,6 +4,8 @@
 #include "gl\glut.h"
 #include "Enums.h"
 #include <random>
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 class Boid
 {
@@ -20,7 +22,7 @@ private:
 
 public:
 	Boid();
-	Boid(position pos, float rotation);
+	Boid(position pos);
 
 	void Update(float delta);
 	void Render();

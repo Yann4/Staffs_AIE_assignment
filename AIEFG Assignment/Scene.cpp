@@ -18,7 +18,7 @@ Scene::Scene()
 	position centre;
 	centre.x = 9.5;
 	centre.z = 10;
-	boid = Boid(centre, 90.0f);
+	boid = Boid(centre);
 	return;
 }
 
@@ -66,10 +66,6 @@ void Scene::Render()
     //Change colour to yellow.
 	glColor3f(0.6f,0.5f,0.2f);
 
-	
-
-	
-
     glBegin(GL_LINES);
        for(iLine = 0; iLine <= length; iLine += spacing)
        {
@@ -102,7 +98,7 @@ void Scene::DrawScenario()
 	//Walls
 	for (unsigned int i = 0; i < m_iWallQty; i++)
 	{
-		m_pWalls[i]->Render();
+	//	m_pWalls[i]->Render();
 	}
 
 	boid.Render();

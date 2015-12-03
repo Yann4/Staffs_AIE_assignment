@@ -3,28 +3,26 @@
 
 Boid::Boid()
 {
-	pos.x = 0;
-	pos.z = 0;
+	pos = position(0,0);
+	wanderTarget = position(0, 0);
+
 	rotation = 0;
+
 	boidShape = TEAPOT;
 	red = 0;
 	green = 255;
 	blue = 0;
-	velocity.x = 0;
-	velocity.z = 0;
-
-	wanderTarget.x = 0;
-	wanderTarget.z = 0;
 }
 
-Boid::Boid(position pos, float rotation) : pos(pos), rotation(rotation), boidShape(TEAPOT)
+Boid::Boid(position pos) : pos(pos), boidShape(TEAPOT)
 {
 	red = 0;
 	green = 255;
 	blue = 0;
-	velocity.x = 0;
-	velocity.z = 0;
 
+	rotation = 0;
+
+	velocity = position(0, 0);
 	wanderTarget = pos;
 }
 
@@ -73,11 +71,12 @@ position Boid::Wander()
 	targetLocal.x += wanderDistance;
 
 	position targetWorld;
+
 	targetWorld.x = pos.x + targetLocal.x;
 	targetWorld.z = pos.z + targetLocal.z;
+
 	targetWorld.x += cos(rotation) * (targetLocal.x) - sin(rotation) * (targetLocal.z);
 	targetWorld.z += sin(rotation) * (targetLocal.x) - cos(rotation) * (targetLocal.z);
-
 
 	std::cout << "pos world: " << targetWorld.x << ", " << targetWorld.z << std::endl;
 
@@ -91,26 +90,33 @@ position Boid::Wander()
 void Boid::Update(float delta)
 {
 	delta = 0.01f;
+	position steeringForce = position(0, 0);
 
 	position wander = Wander();
-	std::cout << "wander: " << wander.x << ", " << wander.z << std::endl;
 
-	pos.x += (velocity.x * delta) + 0.5f * (wander.x * (delta * delta));
-	pos.z += (velocity.z * delta) + 0.5f * (wander.z * (delta * delta));
-	std::cout << "pos: " << pos.x << ", " << pos.z << std::endl;
+	steeringForce.x += wander.x;
+	steeringForce.z += wander.z;
 
-	velocity.x += wander.x * delta;
-	velocity.z += wander.z * delta;
+	pos.x += (velocity.x * delta) + 0.5f * (steeringForce.x * (delta * delta));
+	pos.z += (velocity.z * delta) + 0.5f * (steeringForce.z * (delta * delta));
+
+	velocity.x += steeringForce.x * delta;
+	velocity.z += steeringForce.z * delta;
 
 	velocity = Truncate(velocity, maxVelocity);
+
+	position heading = Normalise(velocity);
+	float rads = atan2(-heading.z, heading.x);
+	float deg = rads * 180 / M_PI;
+	rotation = deg;
 }
 
 void Boid::Render()
 {
 	glPushMatrix();
-	glTranslatef(pos.x, 0.5f, pos.z);
-	glRotatef(rotation, 0, 1, 0);
-	glColor3f(red, green, blue);
-	glutSolidTeapot(0.5);
+		glTranslatef(pos.x, 0.5f, pos.z);
+		glRotatef(rotation, 0, 1, 0);
+		glColor3f(red, green, blue);
+		glutSolidTeapot(0.5);
 	glPopMatrix();
 }
