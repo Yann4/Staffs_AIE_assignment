@@ -14,11 +14,11 @@ Boid::Boid()
 
 	velocity = position(0, 0);
 	wanderTarget = pos;
-	width = 0.5;
-	height = 1;
+	width = 0.25;
+	height = 0.5;
 }
 
-Boid::Boid(position pos) : pos(pos)
+Boid::Boid(char id, position pos) : pos(pos), id(id)
 {
 	red = 0;
 	green = 255;
@@ -29,8 +29,8 @@ Boid::Boid(position pos) : pos(pos)
 	velocity = position(0, 0);
 	wanderTarget = pos;
 
-	width = 0.5;
-	height = 1;
+	width = 0.25;
+	height = 0.5;
 }
 
 float randomInRange(float min, float max)
@@ -93,23 +93,65 @@ position Boid::Wander()
 	return wanderForce;
 }
 
-position Boid::aggregateSteering(position & wander)
+position Boid::Alignment(const std::vector<BoidInfo>& neighbours)
+{
+	return position();
+}
+
+position Boid::Cohesion(const std::vector<BoidInfo>& neighbours)
+{
+	return position();
+}
+
+position Boid::Separation(const std::vector<BoidInfo>& neighbours)
+{
+	position steeringForce = position();
+
+	for (BoidInfo neighbour : neighbours)
+	{
+		if (neighbour.id = id)
+		{
+			continue;
+		}
+		position toBoid = pos;
+		toBoid.x -= neighbour.pos.x;
+		toBoid.z -= neighbour.pos.z;
+
+		float dist = sqrt(toBoid.x * toBoid.x + toBoid.z * toBoid.z);
+		toBoid = normalise(toBoid);
+		toBoid.x /= dist;
+		toBoid.x /= dist;
+
+		steeringForce.x += toBoid.x;
+		steeringForce.z += toBoid.z;
+	}
+
+	return steeringForce;
+}
+
+position Boid::aggregateSteering(position& wander, position& separate)
 {
 	position steerForce = position(0, 0);
 
 	steerForce.x += wander.x * wanderWeight;
 	steerForce.z += wander.z * wanderWeight;
 
+	steerForce.x += separate.x * separateWeight;
+	steerForce.z += separate.z * separateWeight;
+
 	return steerForce;
 }
 
-void Boid::Update(float delta)
+void Boid::Update(float delta, std::vector<BoidInfo> others)
 {
 	delta = 0.01f;
 
 	position wander = Wander();
 
-	position steeringForce = aggregateSteering(wander);
+	std::vector<BoidInfo> neighbours;
+	position separate = Separation(neighbours);
+
+	position steeringForce = aggregateSteering(wander, separate);
 
 	//Update position based on old velocity and accelleration (mass is 1)
 	pos.x += (velocity.x * delta) + 0.5f * (steeringForce.x * (delta * delta));
@@ -133,7 +175,7 @@ void Boid::Render()
 		glTranslatef(pos.x, 0.5f, pos.z);
 		glRotatef(rotation, 0, 1, 0);
 		glColor3f(red, green, blue);
-		glutSolidTeapot(0.5);
+		glutSolidTeapot(0.25);
 	glPopMatrix();
 }
 

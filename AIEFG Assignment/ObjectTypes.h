@@ -8,22 +8,22 @@
 #define NUDGE 0.5
 
 // Our vertex type
-typedef struct
+struct vertex_type
 {
 	float x,y,z;
-}vertex_type;
+};
 
 // The polygon (triangle), 3 numbers that aim 3 vertices
-typedef struct
+struct polygon_type
 {
 	int a,b,c;
-}polygon_type;
+};
 
 // The mapcoord type, 2 texture coordinates for each vertex
-typedef struct
+struct mapcoord_type
 {
 	float u,v;
-}mapcoord_type;
+};
 
 // The object type
 typedef struct 
@@ -51,6 +51,8 @@ struct position
 	float z;
 	position() :x(0), z(0) {}
 	position(float x, float z) :x(x), z(z) {}
+
+
 };
 
 //Edge cost

@@ -12,7 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Boid.h" />
-    <ClInclude Include="ObjectTypes.h" />
     <ClInclude Include="Obstacle.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Viewer.h" />
@@ -20,5 +19,6 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Enums.h" />
     <ClInclude Include="Collision.h" />
+    <ClInclude Include="ObjectTypes.h" />
   </ItemGroup>
 </Project>

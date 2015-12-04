@@ -8,9 +8,23 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+struct BoidInfo
+{
+	char id;
+	position pos;
+	position velocity;
+
+	BoidInfo() :pos(position()), velocity(position()), id('#')
+	{}
+
+	BoidInfo(char id, position pos, position vel) : id(id), pos(pos), velocity(vel)
+	{}
+};
+
 class Boid
 {
 private:
+	char id;
 	position pos;
 
 	position velocity;
@@ -22,15 +36,18 @@ private:
 
 	position wanderTarget;
 
-	float wanderWeight = 1.0f;
-	float seekWeight = 1.0f;
+	float wanderWeight = 0.01f;
+
+	float alignWeight = 1.0f;
+	float coheseWeight = 1.0f;
+	float separateWeight = 1.0f;
 
 public:
 	Boid();
-	Boid(position pos);
+	Boid(char id, position pos);
 	Boid& operator=(const Boid&) = default;
 
-	void Update(float delta);
+	void Update(float delta, std::vector<BoidInfo> others);
 	void Render();
 
 	void resolveCollision(position moveBy);
@@ -38,7 +55,12 @@ public:
 	//Steering
 	position Wander();
 
-	position aggregateSteering(position& wander);
+	position Alignment(const std::vector<BoidInfo>& neighbours);
+	position Cohesion(const std::vector<BoidInfo>& neighbours);
+	position Separation(const std::vector<BoidInfo>& neighbours);
+
+	position aggregateSteering(position& wander, position& separate);
 
 	Collision::BoundingBox getBoundingBox() { return Collision::BoundingBox(pos.x, pos.z, width, height); }
+	BoidInfo getInfo() { return BoidInfo(id, pos, velocity); }
 };

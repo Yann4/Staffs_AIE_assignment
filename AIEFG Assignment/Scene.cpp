@@ -18,9 +18,10 @@ Scene::Scene()
 	position centre;
 	centre.x = 9.5;
 	centre.z = 10;
-	boid = Boid(centre);
-	boid1 = Boid(mazeEntrypoint);
-	boid2 = Boid(centre);
+	boid = Boid('a', centre);
+	boid1 = Boid('b', mazeEntrypoint);
+	centre.x += 3;
+	boid2 = Boid('c', centre);
 
 	return;
 }
@@ -101,7 +102,7 @@ void Scene::DrawScenario()
 	//Walls
 	for (unsigned int i = 0; i < m_iWallQty; i++)
 	{
-		m_pWalls[i]->Render();
+		//m_pWalls[i]->Render();
 	}
 
 	boid.Render();
@@ -241,11 +242,16 @@ void Scene::SetUpScenario()
 
 void Scene::UpdateScenario(int a_deltaTime)
 {
-	boid.Update(a_deltaTime);
-	boid1.Update(a_deltaTime);
-	boid2.Update(a_deltaTime);
+	std::vector<BoidInfo> boids;
+	boids.push_back(boid.getInfo());
+	boids.push_back(boid1.getInfo());
+	boids.push_back(boid2.getInfo());
 
-	for (unsigned int i = 0; i < m_iWallQty; i++)
+	boid.Update(a_deltaTime, boids);
+	boid1.Update(a_deltaTime, boids);
+	boid2.Update(a_deltaTime, boids);
+
+	/*for (unsigned int i = 0; i < m_iWallQty; i++)
 	{
 		Collision::MTV mtv;
 		if (Collision::collision(boid.getBoundingBox(), m_pWalls[i]->getBoundingBox(), mtv))
@@ -267,7 +273,7 @@ void Scene::UpdateScenario(int a_deltaTime)
 			position move = position(mtv.direction.x * mtv.magnitude, mtv.direction.z * mtv.magnitude);
 			boid2.resolveCollision(move);
 		}
-	}
+	}*/
 }
 
 //--------------------------------------------------------------------------------------------------------
