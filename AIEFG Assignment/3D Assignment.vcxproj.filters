@@ -7,6 +7,8 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Viewer.cpp" />
     <ClCompile Include="Worldmanager.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Collision.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Boid.h" />
@@ -15,5 +17,8 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Viewer.h" />
     <ClInclude Include="Worldmanager.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="Enums.h" />
+    <ClInclude Include="Collision.h" />
   </ItemGroup>
 </Project>

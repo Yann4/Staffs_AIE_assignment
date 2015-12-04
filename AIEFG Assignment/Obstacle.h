@@ -6,6 +6,7 @@
 #include "ObjectTypes.h"
 #include "gl/glut.h"
 #include <string>
+#include "Collision.h"
 
 using std::string;
 
@@ -38,5 +39,7 @@ private:
 
 	void	 SetColor(float a_red, float a_green, float a_blue)	{m_fRed = a_red; m_fGreen = a_green; m_fBlue = a_blue;}
 	void	 SetOffset(position a_offset)						{m_Offset = a_offset;}
+
+	Collision::BoundingBox getBoundingBox() { return Collision::BoundingBox(m_fX, m_fZ, m_fSize / 2, m_fSize / 2); }
 };
 #endif //_OBSTACLE_H_
