@@ -4,7 +4,10 @@
 #include <string>
 
 //--------------------------------------------------------------------------------------------------------
-
+float randInRange(float min, float max)
+{
+	return min + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (max - min)));
+}
 Scene::Scene()
 {
 	//Current scenario
@@ -18,10 +21,17 @@ Scene::Scene()
 	position centre;
 	centre.x = 9.5;
 	centre.z = 10;
-	boid = Boid('a', centre);
-	boid1 = Boid('b', mazeEntrypoint);
-	centre.x += 3;
-	boid2 = Boid('c', centre);
+	walls.push_back(Wall(position(0, 21), position(0, 0)));
+	walls.push_back(Wall(position(0, 0), position(21, 0)));
+	walls.push_back(Wall(position(21, 0), position(21, 21)));
+	walls.push_back(Wall(position(21, 21), position(0, 21)));
+
+	for (int i = 0; i < NUM_BOIDS; i++)
+	{
+		position p = position(centre.x + randInRange(-10, 10), centre.z + randInRange(-10, 10));
+		boids.push_back(Boid(i, p, &walls));
+	}
+	dobby = Boid(4, centre, &walls);
 
 	return;
 }
@@ -105,9 +115,11 @@ void Scene::DrawScenario()
 		//m_pWalls[i]->Render();
 	}
 
-	boid.Render();
-	boid1.Render();
-	boid2.Render();
+	for (Boid b : boids)
+	{
+		//b.Render();
+	}
+	dobby.Render();
 }
 
 //Methods to set up pointer arrays to all the wall pieces.
@@ -242,15 +254,19 @@ void Scene::SetUpScenario()
 
 void Scene::UpdateScenario(int a_deltaTime)
 {
-	std::vector<BoidInfo> boids;
-	boids.push_back(boid.getInfo());
-	boids.push_back(boid1.getInfo());
-	boids.push_back(boid2.getInfo());
+	std::vector<BoidInfo> info;
+	for (Boid b : boids)
+	{
+		info.push_back(b.getInfo());
+	}
+	info.push_back(dobby.getInfo());
 
-	boid.Update(a_deltaTime, boids);
-	boid1.Update(a_deltaTime, boids);
-	boid2.Update(a_deltaTime, boids);
+	for (int i = 0; i < NUM_BOIDS; i++)
+	{
+		//boids.at(i).Update(a_deltaTime, info);
+	}
 
+	dobby.Update(a_deltaTime, info);
 	/*for (unsigned int i = 0; i < m_iWallQty; i++)
 	{
 		Collision::MTV mtv;

@@ -21,7 +21,12 @@ private:
 	unsigned int m_iWallQty;
 	position	 m_ScenarioOffset;
 
-	Boid boid, boid1, boid2;
+	std::vector<Boid> boids;
+	int NUM_BOIDS = 20;
+
+	Boid dobby;
+
+	std::vector<Wall> walls;
 
 public:
 	Scene();
