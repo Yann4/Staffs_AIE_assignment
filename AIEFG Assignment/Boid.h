@@ -49,13 +49,13 @@ private:
 
 	position wanderTarget;
 
-	float wanderWeight = 0.1f;
+	float wanderWeight = 0.5f;
 
 	float alignWeight = 0; //0.5f;
 	float coheseWeight = 0;// 0.3f;
 	float separateWeight = 0;// 0.5f;
 
-	float avoidWallWeight = 1.0f;
+	float avoidWallWeight = 10.0f;
 
 	std::vector<Wall>* walls;
 

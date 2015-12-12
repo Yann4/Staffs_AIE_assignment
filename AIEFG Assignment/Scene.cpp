@@ -21,6 +21,7 @@ Scene::Scene()
 	position centre;
 	centre.x = 9.5;
 	centre.z = 10;
+	//Actual walls
 	walls.push_back(Wall(position(0, 21), position(0, 0)));
 	walls.push_back(Wall(position(0, 0), position(21, 0)));
 	walls.push_back(Wall(position(21, 0), position(21, 21)));
@@ -117,7 +118,7 @@ void Scene::DrawScenario()
 
 	for (Boid b : boids)
 	{
-		//b.Render();
+		b.Render();
 	}
 	dobby.Render();
 }
@@ -263,7 +264,7 @@ void Scene::UpdateScenario(int a_deltaTime)
 
 	for (int i = 0; i < NUM_BOIDS; i++)
 	{
-		//boids.at(i).Update(a_deltaTime, info);
+		boids.at(i).Update(a_deltaTime, info);
 	}
 
 	dobby.Update(a_deltaTime, info);

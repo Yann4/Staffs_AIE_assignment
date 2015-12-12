@@ -84,7 +84,7 @@ position Boid::Seek(position seekTo)
 
 position Boid::Wander()
 {
-	float wanderJitter = 2;
+	float wanderJitter = 3;
 	float wanderDistance = 2;
 	float wanderRadius = 10;
 
@@ -235,13 +235,13 @@ position Boid::WallAvoidance()
 	float s = sin(-rotation * M_PI / 180);
 	float c = cos(-rotation * M_PI / 180);
 	feelers[0] = position(pos.x + length * c, pos.z + length * s);
-
-	s = sin(-(rotation + 45) * M_PI / 180);
-	c = cos(-(rotation + 45) * M_PI / 180);
+	float feelerAngle = 50;
+	s = sin(-(rotation + feelerAngle) * M_PI / 180);
+	c = cos(-(rotation + feelerAngle) * M_PI / 180);
 	feelers[1] = position(pos.x + length * c, pos.z + length * s);
 
-	s = sin(-(rotation - 45) * M_PI / 180);
-	c = cos(-(rotation - 45) * M_PI / 180);
+	s = sin(-(rotation - feelerAngle) * M_PI / 180);
+	c = cos(-(rotation - feelerAngle) * M_PI / 180);
 	feelers[2] = position(pos.x + length * c, pos.z + length * s);
 
 	glBegin(GL_LINES);
@@ -264,6 +264,7 @@ position Boid::WallAvoidance()
 	float distToClosestIP = 9999999;
 
 	int closestWall = -1;
+	std::vector<Wall> intersectingWalls;
 
 	position steeringForce = position();
 	position closestPoint = position();
@@ -281,99 +282,28 @@ position Boid::WallAvoidance()
 				{
 					distToClosestIP = mag;
 					closestWall = i;
+					intersectingWalls.push_back(walls->at(i));
 					closestPoint = point;
 				}
 			}
 		}
 
-		if (closestWall != -1)
+		if (closestWall >= 0)
 		{
 			position overshoot = feeler;
 			overshoot.x -= closestPoint.x;
 			overshoot.z -= closestPoint.z;
+
+			float multiplier = 15;
 			
-			float overshootLength = sqrt(overshoot.x * overshoot.x + overshoot.z * overshoot.z);
-			//position normal = position(-(walls->at(closestWall).end.z - walls->at(closestWall).start.z), (walls->at(closestWall).end.x - walls->at(closestWall).start.x));
-			//normal = normalise(normal);
-			//steeringForce = position(normal.x * overshootLength, normal.z * overshootLength);
-
-			float areaHeight, areaWidth;
-			for (int i = 0; i < walls->size(); i++)
-			{
-				if (walls->at(i).start.x == walls->at(i).end.x)
-				{
-					areaWidth = walls->at(i).end.z - walls->at(i).start.z;
-				}
-
-				if (walls->at(i).start.z == walls->at(i).end.z)
-				{
-					areaHeight = walls->at(i).end.x - walls->at(i).start.x;
-				}
-			}
-
-			areaHeight = abs(areaHeight);
-			areaWidth = abs(areaWidth);
-
-			//Vertical wall
-			if (walls->at(closestWall).start.x == walls->at(closestWall).end.x)
-			{
-				//Left wall
-				if (walls->at(closestWall).start.z == 0 || walls->at(closestWall).end.z == 0)
-				{
-					if (pos.z <= areaHeight / 2)
-					{
-						steeringForce = position(1, 5);
-					}
-					else
-					{
-						steeringForce = position(1, -5);
-					}
-				}
-				else //Right wall
-				{
-					if (pos.z <= areaHeight / 2)
-					{
-						steeringForce = position(-1, 5);
-					}
-					else
-					{
-						steeringForce = position(-1, -5);
-					}
-				}
-			}
-			else
-			{
-				//Top wall
-				if (walls->at(closestWall).start.x == 0 || walls->at(closestWall).end.x == 0)
-				{
-					if (pos.x >= areaWidth / 2)
-					{
-						steeringForce = position(-5, 1);
-					}
-					else
-					{
-						steeringForce = position(5, 1);
-					}
-				}
-				else //Bottom wall
-				{
-					if (pos.x >= areaWidth / 2)
-					{
-						steeringForce = position(-5, -1);
-					}
-					else
-					{
-						steeringForce = position(5, -1);
-					}
-				}
-			}
-
-			overshootLength *= 10;
-			//steeringForce = normalise(steeringForce);
-			steeringForce = position(steeringForce.x * overshootLength, steeringForce.z * overshootLength);
+			float overshootLength = sqrt(overshoot.x * overshoot.x + overshoot.z * overshoot.z) * multiplier;
+			position normal = position(-(walls->at(closestWall).end.z - walls->at(closestWall).start.z), (walls->at(closestWall).end.x - walls->at(closestWall).start.x));
+			normal = normalise(normal);
+			steeringForce = position((normal.x * overshootLength), (normal.z * overshootLength * 5));
 		}
+		closestWall = -1;
 	}
-	
+
 	return steeringForce;
 }
 
@@ -394,7 +324,7 @@ position Boid::aggregateSteering(position& wander, position& separate, position&
 	steerForce.z += cohese.z * coheseWeight;
 
 	steerForce.x += avoidWalls.x * avoidWallWeight;
-	steerForce.x += avoidWalls.z * avoidWallWeight;
+	steerForce.z += avoidWalls.z * avoidWallWeight;
 
 	return steerForce;
 }
