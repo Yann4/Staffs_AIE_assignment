@@ -363,13 +363,41 @@ std::vector<BoidInfo> Boid::getNeighbourhood(const std::vector<BoidInfo>& allBoi
 	}
 	return neighbours;
 }
-#include <Windows.h>
+
+void Boid::givePath(std::stack<position> path)
+{
+	this->path = path;
+}
+
+position Boid::followPath()
+{
+	float radius = 0.5f;
+	radius *= radius;
+	
+	if (!path.empty())
+	{
+		position nextNode = path.top();
+
+		float distSq = (pos.x - nextNode.x) * (pos.x - nextNode.x) + (pos.z - nextNode.z) * (pos.z - nextNode.z);
+		distSq = abs(distSq);
+
+		if (distSq < radius)
+		{
+			path.pop();
+			if (!path.empty())
+			{
+				nextNode = path.top();
+			}
+		}
+		return Seek(nextNode);
+	}
+	return position();
+}
 
 void Boid::Update(float delta, const std::vector<BoidInfo>& others)
 {
 	delta = 0.03f;
 
-	
 	std::vector<BoidInfo> neighbours = getNeighbourhood(others);
 	position wander = Wander();
 
@@ -382,6 +410,8 @@ void Boid::Update(float delta, const std::vector<BoidInfo>& others)
 	position avoidWalls = WallAvoidance();
 
 	position steeringForce = aggregateSteering(wander, separate, alignment, cohese, avoidWalls);	
+
+	steeringForce = followPath();
 
 	//Update position based on old velocity and accelleration (mass is 1)
 	pos.x += (velocity.x * delta) + 0.5f * (steeringForce.x * (delta * delta));
@@ -396,28 +426,6 @@ void Boid::Update(float delta, const std::vector<BoidInfo>& others)
 	position heading = normalise(velocity);
 	float deg = atan2(-heading.z, heading.x) * 180 / M_PI;
 	rotation = deg;
-
-	if (GetAsyncKeyState(VK_RIGHT))
-	{
-		pos.x += 0.1;
-	}else if (GetAsyncKeyState(VK_LEFT))
-	{
-		pos.x -= 0.1;
-	}
-
-	if (GetAsyncKeyState(VK_UP))
-	{
-		pos.z -= 0.1;
-	}
-	else if (GetAsyncKeyState(VK_DOWN))
-	{
-		pos.z += 0.1;
-	}
-
-	if (GetAsyncKeyState(VK_SPACE))
-	{
-		rotation += 1;
-	}
 }
 
 void Boid::Render()

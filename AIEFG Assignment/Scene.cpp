@@ -32,8 +32,8 @@ Scene::Scene()
 		position p = position(centre.x + randInRange(-10, 10), centre.z + randInRange(-10, 10));
 		boids.push_back(Boid(i, p, &walls));
 	}
-	dobby = Boid(4, centre, &walls);
-
+	dobby = Boid(4, mazeEntrypoint, &walls);
+	
 	return;
 }
 
@@ -55,6 +55,7 @@ Scene::~Scene()
 		m_pWalls = NULL;
 	}
 
+	delete graph;
 	return;
 }
 
@@ -65,7 +66,7 @@ bool Scene::Initialise()
 	glEnable(GL_DEPTH_TEST);
 
 	SetUpScenario();
-	
+
 	return true;
 }
 
@@ -110,17 +111,20 @@ void Scene::Update(int a_deltaTime)
 
 void Scene::DrawScenario()
 {
+	graph->RenderGraph();
 	//Walls
 	for (unsigned int i = 0; i < m_iWallQty; i++)
 	{
-		//m_pWalls[i]->Render();
+		m_pWalls[i]->Render();
 	}
 
 	for (Boid b : boids)
 	{
-		b.Render();
+	//	b.Render();
 	}
 	dobby.Render();
+
+	
 }
 
 //Methods to set up pointer arrays to all the wall pieces.
@@ -247,8 +251,30 @@ void Scene::SetUpScenario()
 	}
 
 	//Add your waypoint structure here.
+	graph = new Graph(position(0.5, 0.5), 1, m_pWalls, m_iWallQty);
 
-	//Setup your edge list here.
+
+	position mazeEntrypoint;
+	mazeEntrypoint.x = 9.5;
+	mazeEntrypoint.z = 20;
+
+	position centre;
+	centre.x = 9.5;
+	centre.z = 10;
+	auto path = graph->getPath(mazeEntrypoint, centre);
+	std::stack<position> agentPath;
+
+	while (!path.empty())
+	{
+		path.front()->b = 1;
+		path.front()->g = 0;
+		path.front()->r = 0;
+		agentPath.push(path.front()->pos);
+		path.pop();
+	}
+
+
+	dobby.givePath(agentPath);
 }
 
 //--------------------------------------------------------------------------------------------------------
@@ -264,10 +290,15 @@ void Scene::UpdateScenario(int a_deltaTime)
 
 	for (int i = 0; i < NUM_BOIDS; i++)
 	{
-		boids.at(i).Update(a_deltaTime, info);
+		//boids.at(i).Update(a_deltaTime, info);
 	}
 
 	dobby.Update(a_deltaTime, info);
+
+	//graph->getNearestNode(dobby.getInfo().pos)->setColour(0, 1, 0);
+
+	
+
 	/*for (unsigned int i = 0; i < m_iWallQty; i++)
 	{
 		Collision::MTV mtv;

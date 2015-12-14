@@ -10,7 +10,7 @@
 #include "ObjectTypes.h"
 #include <vector>
 #include "Boid.h"
-
+#include "Graph.h"
 
 using std::vector;
 
@@ -27,6 +27,7 @@ private:
 	Boid dobby;
 
 	std::vector<Wall> walls;
+	Graph* graph;
 
 public:
 	Scene();

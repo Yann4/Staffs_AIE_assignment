@@ -8,6 +8,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <array>
+#include <stack>
 
 struct BoidInfo
 {
@@ -59,6 +60,7 @@ private:
 
 	std::vector<Wall>* walls;
 
+	std::stack<position> path;
 public:
 	Boid();
 	Boid(char id, position pos, std::vector<Wall>* walls);
@@ -70,6 +72,9 @@ public:
 	void resolveCollision(position moveBy);
 
 	std::vector<BoidInfo> getNeighbourhood(const std::vector<BoidInfo>& allBoids);
+	
+	void givePath(std::stack<position> path);
+	
 
 	//Steering
 	position Seek(position seekTo);
@@ -80,6 +85,8 @@ public:
 	position Alignment(const std::vector<BoidInfo>& neighbours);
 	position Cohesion(const std::vector<BoidInfo>& neighbours);
 	position Separation(const std::vector<BoidInfo>& neighbours);
+
+	position followPath();
 
 	position WallAvoidance();
 

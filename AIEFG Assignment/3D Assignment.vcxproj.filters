@@ -9,6 +9,7 @@
     <ClCompile Include="Worldmanager.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Collision.cpp" />
+    <ClCompile Include="Graph.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Boid.h" />
@@ -20,5 +21,6 @@
     <ClInclude Include="Enums.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="ObjectTypes.h" />
+    <ClInclude Include="Graph.h" />
   </ItemGroup>
 </Project>
