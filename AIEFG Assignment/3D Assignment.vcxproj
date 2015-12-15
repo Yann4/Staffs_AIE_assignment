@@ -96,7 +96,9 @@
     <ClCompile Include="Boid.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Collision.cpp" />
+    <ClCompile Include="EscapeState.cpp" />
     <ClCompile Include="Graph.cpp" />
+    <ClCompile Include="MathHelper.cpp" />
     <ClCompile Include="Obstacle.cpp" />
     <ClCompile Include="Program.cpp" />
     <ClCompile Include="Scene.cpp" />
@@ -108,10 +110,13 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="Enums.h" />
+    <ClInclude Include="EscapeState.h" />
     <ClInclude Include="Graph.h" />
+    <ClInclude Include="MathHelper.h" />
     <ClInclude Include="ObjectTypes.h" />
     <ClInclude Include="Obstacle.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="State.h" />
     <ClInclude Include="Viewer.h" />
     <ClInclude Include="Worldmanager.h" />
   </ItemGroup>

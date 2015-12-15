@@ -1,26 +1,88 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="Boid.cpp" />
-    <ClCompile Include="Obstacle.cpp" />
-    <ClCompile Include="Program.cpp" />
-    <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="Viewer.cpp" />
-    <ClCompile Include="Worldmanager.cpp" />
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Collision.cpp" />
-    <ClCompile Include="Graph.cpp" />
+    <ClCompile Include="Boid.cpp">
+      <Filter>Agent</Filter>
+    </ClCompile>
+    <ClCompile Include="Worldmanager.cpp">
+      <Filter>World</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>World</Filter>
+    </ClCompile>
+    <ClCompile Include="Graph.cpp">
+      <Filter>World</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Program</Filter>
+    </ClCompile>
+    <ClCompile Include="Program.cpp">
+      <Filter>Program</Filter>
+    </ClCompile>
+    <ClCompile Include="Viewer.cpp">
+      <Filter>Program</Filter>
+    </ClCompile>
+    <ClCompile Include="Collision.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Obstacle.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="EscapeState.cpp">
+      <Filter>State Machine</Filter>
+    </ClCompile>
+    <ClCompile Include="MathHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Boid.h" />
-    <ClInclude Include="Obstacle.h" />
-    <ClInclude Include="Scene.h" />
-    <ClInclude Include="Viewer.h" />
-    <ClInclude Include="Worldmanager.h" />
-    <ClInclude Include="Camera.h" />
     <ClInclude Include="Enums.h" />
-    <ClInclude Include="Collision.h" />
     <ClInclude Include="ObjectTypes.h" />
-    <ClInclude Include="Graph.h" />
+    <ClInclude Include="Boid.h">
+      <Filter>Agent</Filter>
+    </ClInclude>
+    <ClInclude Include="Worldmanager.h">
+      <Filter>World</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>World</Filter>
+    </ClInclude>
+    <ClInclude Include="Graph.h">
+      <Filter>World</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Program</Filter>
+    </ClInclude>
+    <ClInclude Include="Viewer.h">
+      <Filter>Program</Filter>
+    </ClInclude>
+    <ClInclude Include="Collision.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Obstacle.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="State.h">
+      <Filter>State Machine</Filter>
+    </ClInclude>
+    <ClInclude Include="EscapeState.h">
+      <Filter>State Machine</Filter>
+    </ClInclude>
+    <ClInclude Include="MathHelper.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Agent">
+      <UniqueIdentifier>{c91fde41-a348-441c-9266-aacf1869d134}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="World">
+      <UniqueIdentifier>{dcdedbc3-0d7d-402b-90b9-51677f4d8d2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Program">
+      <UniqueIdentifier>{c694a03d-b09a-42ae-a2da-8f5e2f5bf474}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Objects">
+      <UniqueIdentifier>{bb25d3d4-df97-4b5b-b84d-d565607700ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="State Machine">
+      <UniqueIdentifier>{29776f4d-e0d9-420c-b818-79008689dd44}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

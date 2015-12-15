@@ -11,8 +11,7 @@
 #include <vector>
 #include "Boid.h"
 #include "Graph.h"
-
-using std::vector;
+#include "MathHelper.h"
 
 class Scene
 {
@@ -24,7 +23,7 @@ private:
 	std::vector<Boid> boids;
 	int NUM_BOIDS = 20;
 
-	Boid dobby;
+	Boid* dobby;
 
 	std::vector<Wall> walls;
 	Graph* graph;

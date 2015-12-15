@@ -4,7 +4,12 @@
 #include "gl\glut.h"
 #include "Enums.h"
 #include "Collision.h"
-#include <random>
+#include "MathHelper.h"
+#include "Graph.h"
+
+#include "State.h"
+#include "EscapeState.h"
+
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <array>
@@ -37,6 +42,8 @@ struct Wall
 
 class Boid
 {
+	friend class EscapeState;
+
 private:
 	int id;
 	position pos;
@@ -52,23 +59,26 @@ private:
 
 	float wanderWeight = 0.5f;
 
-	float alignWeight = 0; //0.5f;
-	float coheseWeight = 0;// 0.3f;
-	float separateWeight = 0;// 0.5f;
+	float alignWeight = 0.5f;
+	float coheseWeight = 0.3f;
+	float separateWeight = 0.5f;
 
 	float avoidWallWeight = 10.0f;
 
 	std::vector<Wall>* walls;
 
 	std::stack<position> path;
+
+	State* currentState;
 public:
 	Boid();
-	Boid(char id, position pos, std::vector<Wall>* walls);
+	Boid(char id, position pos, Graph* g, std::vector<Wall>* walls);
 	Boid& operator=(const Boid&) = default;
 
 	void Update(float delta, const std::vector<BoidInfo>& others);
 	void Render();
 
+	void UpdateLocation(position steeringForce, float delta);
 	void resolveCollision(position moveBy);
 
 	std::vector<BoidInfo> getNeighbourhood(const std::vector<BoidInfo>& allBoids);

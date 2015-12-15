@@ -4,19 +4,14 @@
 #include <string>
 
 //--------------------------------------------------------------------------------------------------------
-float randInRange(float min, float max)
-{
-	return min + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (max - min)));
-}
+
 Scene::Scene()
 {
 	//Current scenario
 	m_ScenarioOffset.x = 0.0f;
 	m_ScenarioOffset.z = 0.0f;
 
-	position mazeEntrypoint;
-	mazeEntrypoint.x = 9.5;
-	mazeEntrypoint.z = 20;
+	position mazeEntrypoint = position(9.5, 20);
 
 	position centre;
 	centre.x = 9.5;
@@ -29,11 +24,10 @@ Scene::Scene()
 
 	for (int i = 0; i < NUM_BOIDS; i++)
 	{
-		position p = position(centre.x + randInRange(-10, 10), centre.z + randInRange(-10, 10));
-		boids.push_back(Boid(i, p, &walls));
+		position p = position(centre.x + randomInRange(-10, 10), centre.z + randomInRange(-10, 10));
+		//boids.push_back(Boid(i, p, &walls));
 	}
-	dobby = Boid(4, mazeEntrypoint, &walls);
-	
+
 	return;
 }
 
@@ -56,6 +50,8 @@ Scene::~Scene()
 	}
 
 	delete graph;
+
+	delete dobby;
 	return;
 }
 
@@ -67,6 +63,7 @@ bool Scene::Initialise()
 
 	SetUpScenario();
 
+	dobby = new Boid(4, position(9.5, 20), graph, &walls);
 	return true;
 }
 
@@ -122,7 +119,7 @@ void Scene::DrawScenario()
 	{
 	//	b.Render();
 	}
-	dobby.Render();
+	dobby->Render();
 
 	
 }
@@ -252,29 +249,6 @@ void Scene::SetUpScenario()
 
 	//Add your waypoint structure here.
 	graph = new Graph(position(0.5, 0.5), 1, m_pWalls, m_iWallQty);
-
-
-	position mazeEntrypoint;
-	mazeEntrypoint.x = 9.5;
-	mazeEntrypoint.z = 20;
-
-	position centre;
-	centre.x = 9.5;
-	centre.z = 10;
-	auto path = graph->getPath(mazeEntrypoint, centre);
-	std::stack<position> agentPath;
-
-	while (!path.empty())
-	{
-		path.front()->b = 1;
-		path.front()->g = 0;
-		path.front()->r = 0;
-		agentPath.push(path.front()->pos);
-		path.pop();
-	}
-
-
-	dobby.givePath(agentPath);
 }
 
 //--------------------------------------------------------------------------------------------------------
@@ -286,14 +260,14 @@ void Scene::UpdateScenario(int a_deltaTime)
 	{
 		info.push_back(b.getInfo());
 	}
-	info.push_back(dobby.getInfo());
+	info.push_back(dobby->getInfo());
 
 	for (int i = 0; i < NUM_BOIDS; i++)
 	{
 		//boids.at(i).Update(a_deltaTime, info);
 	}
 
-	dobby.Update(a_deltaTime, info);
+	dobby->Update(a_deltaTime, info);
 
 	//graph->getNearestNode(dobby.getInfo().pos)->setColour(0, 1, 0);
 

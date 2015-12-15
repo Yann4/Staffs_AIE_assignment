@@ -19,7 +19,7 @@ Boid::Boid()
 	walls = nullptr;
 }
 
-Boid::Boid(char id, position pos, std::vector<Wall>* walls) : pos(pos), id(id), walls(walls)
+Boid::Boid(char id, position pos, Graph* g, std::vector<Wall>* walls) : pos(pos), id(id), walls(walls)
 {
 	red = 0;
 	green = 255;
@@ -32,37 +32,9 @@ Boid::Boid(char id, position pos, std::vector<Wall>* walls) : pos(pos), id(id), 
 
 	width = 0.25;
 	height = 0.5;
-}
 
-float randomInRange(float min, float max)
-{
-	return min + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (max - min)));
-}
-
-position normalise(position p)
-{
-	if (p.x == 0 && p.z == 0)
-	{
-		return position(0, 0);
-	}
-	float mag = sqrtf(p.x * p.x + p.z * p.z);
-	p.x /= mag;
-	p.z /= mag;
-	return p;
-}
-
-position truncate(position p, float maxMag)
-{
-	float mag = sqrtf(p.x * p.x + p.z * p.z);
-	if (mag > maxMag)
-	{
-		p.x /= mag;
-		p.z /= mag;
-
-		p.x *= maxMag;
-		p.z *= maxMag;
-	}
-	return p;
+	currentState = new EscapeState(this, g, nullptr);
+	currentState->Enter();
 }
 
 position Boid::Seek(position seekTo)
@@ -195,31 +167,6 @@ position Boid::Separation(const std::vector<BoidInfo>& neighbours)
 	}
 
 	return steeringForce;
-}
-
-bool lineIntersection(position a, position b, position c, position d, position& pointOfIntersection)
-{
-	position s1 = position(b.x - a.x, b.z - a.z);
-	position s2 = position(d.x - c.x, d.z - c.z);
-
-	float denominator = -s2.x * s1.z + s1.x * s2.z;
-
-	//Lines are parallell
-	if (denominator == 0)
-	{
-		return false;
-	}
-
-	float s = (-s1.z * (a.x - c.x) + s1.x * (a.z - c.z)) / denominator;
-	float r = (s2.x * (a.z - c.z) - s2.z * (a.x - c.x)) / denominator;
-
-	if (r >= 0 && r <= 1 && s >= 0 && s <= 1)
-	{
-		pointOfIntersection = position(a.x + (r * s1.x), a.z + (r * s1.z));
-		return true;
-	}
-
-	return false;
 }
 
 position Boid::WallAvoidance()
@@ -398,7 +345,7 @@ void Boid::Update(float delta, const std::vector<BoidInfo>& others)
 {
 	delta = 0.03f;
 
-	std::vector<BoidInfo> neighbours = getNeighbourhood(others);
+	/*std::vector<BoidInfo> neighbours = getNeighbourhood(others);
 	position wander = Wander();
 
 	position separate = Separation(neighbours);
@@ -411,8 +358,23 @@ void Boid::Update(float delta, const std::vector<BoidInfo>& others)
 
 	position steeringForce = aggregateSteering(wander, separate, alignment, cohese, avoidWalls);	
 
-	steeringForce = followPath();
+	UpdateLocation(steeringForce, delta);*/
 
+	currentState->Update(delta);
+}
+
+void Boid::Render()
+{
+	glPushMatrix();
+		glTranslatef(pos.x, 0.5f, pos.z);
+		glRotatef(rotation, 0, 1, 0);
+		glColor3f(red, green, blue);
+		glutSolidTeapot(0.25);
+	glPopMatrix();
+}
+
+void Boid::UpdateLocation(position steeringForce, float delta)
+{
 	//Update position based on old velocity and accelleration (mass is 1)
 	pos.x += (velocity.x * delta) + 0.5f * (steeringForce.x * (delta * delta));
 	pos.z += (velocity.z * delta) + 0.5f * (steeringForce.z * (delta * delta));
@@ -426,16 +388,6 @@ void Boid::Update(float delta, const std::vector<BoidInfo>& others)
 	position heading = normalise(velocity);
 	float deg = atan2(-heading.z, heading.x) * 180 / M_PI;
 	rotation = deg;
-}
-
-void Boid::Render()
-{
-	glPushMatrix();
-		glTranslatef(pos.x, 0.5f, pos.z);
-		glRotatef(rotation, 0, 1, 0);
-		glColor3f(red, green, blue);
-		glutSolidTeapot(0.25);
-	glPopMatrix();
 }
 
 void Boid::resolveCollision(position moveBy)
