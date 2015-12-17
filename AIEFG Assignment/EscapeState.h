@@ -20,7 +20,7 @@ public:
 	EscapeState(Boid* boid, Graph* graph, State* sisterState);
 	
 	void Enter();
-	void Update(float delta);
+	void Update(float delta, const std::vector<BoidInfo>& others);
 	void Exit();
 
 	bool shouldExit();

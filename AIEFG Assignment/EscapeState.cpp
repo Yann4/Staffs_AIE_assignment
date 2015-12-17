@@ -33,7 +33,7 @@ void EscapeState::Enter()
 	boid->givePath(path);
 }
 
-void EscapeState::Update(float delta)
+void EscapeState::Update(float delta, const std::vector<BoidInfo>& others)
 {
 	position pathFollow = boid->followPath();
 	boid->UpdateLocation(pathFollow, delta);

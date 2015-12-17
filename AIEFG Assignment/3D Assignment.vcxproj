@@ -97,6 +97,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="EscapeState.cpp" />
+    <ClCompile Include="FlockState.cpp" />
     <ClCompile Include="Graph.cpp" />
     <ClCompile Include="MathHelper.cpp" />
     <ClCompile Include="Obstacle.cpp" />
@@ -111,6 +112,7 @@
     <ClInclude Include="Collision.h" />
     <ClInclude Include="Enums.h" />
     <ClInclude Include="EscapeState.h" />
+    <ClInclude Include="FlockState.h" />
     <ClInclude Include="Graph.h" />
     <ClInclude Include="MathHelper.h" />
     <ClInclude Include="ObjectTypes.h" />

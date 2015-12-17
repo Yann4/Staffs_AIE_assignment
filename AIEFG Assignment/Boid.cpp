@@ -33,8 +33,18 @@ Boid::Boid(char id, position pos, Graph* g, std::vector<Wall>* walls) : pos(pos)
 	width = 0.25;
 	height = 0.5;
 
-	currentState = new EscapeState(this, g, nullptr);
+	giveGoodGuyFSM();
 	currentState->Enter();
+}
+
+void Boid::giveGoodGuyFSM()
+{
+	currentState = new EscapeState(this, g, new FlockState(this, nullptr));
+}
+
+void Boid::giveBadGuyFSM()
+{
+
 }
 
 position Boid::Seek(position seekTo)
@@ -343,24 +353,9 @@ position Boid::followPath()
 
 void Boid::Update(float delta, const std::vector<BoidInfo>& others)
 {
-	delta = 0.03f;
+	delta = 0.03;
 
-	/*std::vector<BoidInfo> neighbours = getNeighbourhood(others);
-	position wander = Wander();
-
-	position separate = Separation(neighbours);
-
-	position alignment = Alignment(neighbours);
-
-	position cohese = Cohesion(neighbours);
-	
-	position avoidWalls = WallAvoidance();
-
-	position steeringForce = aggregateSteering(wander, separate, alignment, cohese, avoidWalls);	
-
-	UpdateLocation(steeringForce, delta);*/
-
-	currentState->Update(delta);
+	currentState->Update(delta, others);
 }
 
 void Boid::Render()

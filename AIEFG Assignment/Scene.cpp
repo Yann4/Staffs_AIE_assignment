@@ -16,11 +16,12 @@ Scene::Scene()
 	position centre;
 	centre.x = 9.5;
 	centre.z = 10;
+
 	//Actual walls
-	walls.push_back(Wall(position(0, 21), position(0, 0)));
+	walls.push_back(Wall(position(0, 12), position(0, 0)));
 	walls.push_back(Wall(position(0, 0), position(21, 0)));
-	walls.push_back(Wall(position(21, 0), position(21, 21)));
-	walls.push_back(Wall(position(21, 21), position(0, 21)));
+	walls.push_back(Wall(position(21, 0), position(21, 12)));
+	walls.push_back(Wall(position(21, 12), position(0, 12)));
 
 	for (int i = 0; i < NUM_BOIDS; i++)
 	{

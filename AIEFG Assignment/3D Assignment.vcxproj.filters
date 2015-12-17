@@ -32,6 +32,9 @@
       <Filter>State Machine</Filter>
     </ClCompile>
     <ClCompile Include="MathHelper.cpp" />
+    <ClCompile Include="FlockState.cpp">
+      <Filter>State Machine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Enums.h" />
@@ -67,6 +70,9 @@
       <Filter>State Machine</Filter>
     </ClInclude>
     <ClInclude Include="MathHelper.h" />
+    <ClInclude Include="FlockState.h">
+      <Filter>State Machine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Agent">

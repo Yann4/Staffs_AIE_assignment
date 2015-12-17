@@ -9,6 +9,7 @@
 
 #include "State.h"
 #include "EscapeState.h"
+#include "FlockState.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -43,6 +44,7 @@ struct Wall
 class Boid
 {
 	friend class EscapeState;
+	friend class FlockState;
 
 private:
 	int id;
@@ -70,6 +72,7 @@ private:
 	std::stack<position> path;
 
 	State* currentState;
+
 public:
 	Boid();
 	Boid(char id, position pos, Graph* g, std::vector<Wall>* walls);
@@ -77,14 +80,20 @@ public:
 
 	void Update(float delta, const std::vector<BoidInfo>& others);
 	void Render();
+	void resolveCollision(position moveBy);
+
+	Collision::BoundingBox getBoundingBox() { return Collision::BoundingBox(pos.x, pos.z, width, height); }
+	BoidInfo getInfo() { return BoidInfo(id, pos, velocity); }
+
+private:
+	void giveGoodGuyFSM();
+	void giveBadGuyFSM();
 
 	void UpdateLocation(position steeringForce, float delta);
-	void resolveCollision(position moveBy);
 
 	std::vector<BoidInfo> getNeighbourhood(const std::vector<BoidInfo>& allBoids);
 	
 	void givePath(std::stack<position> path);
-	
 
 	//Steering
 	position Seek(position seekTo);
@@ -101,7 +110,4 @@ public:
 	position WallAvoidance();
 
 	position aggregateSteering(position& wander, position& separate, position& align, position& cohese, position& avoidWalls);
-
-	Collision::BoundingBox getBoundingBox() { return Collision::BoundingBox(pos.x, pos.z, width, height); }
-	BoidInfo getInfo() { return BoidInfo(id, pos, velocity); }
 };
