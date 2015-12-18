@@ -25,6 +25,8 @@ private:
 
 	Boid* dobby;
 
+	std::vector<Boid*> enemies;
+
 	std::vector<Wall> walls;
 	Graph* graph;
 

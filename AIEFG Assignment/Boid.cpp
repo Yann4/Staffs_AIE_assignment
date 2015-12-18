@@ -33,18 +33,27 @@ Boid::Boid(char id, position pos, Graph* g, std::vector<Wall>* walls) : pos(pos)
 	width = 0.25;
 	height = 0.5;
 
-	giveGoodGuyFSM();
+	giveGoodGuyFSM(g);
 	currentState->Enter();
 }
 
-void Boid::giveGoodGuyFSM()
+void Boid::makeBadGuy(Graph* graph, position patrolLoc1, position patrolLoc2)
+{
+	green = 0;
+	blue = 255;
+
+	delete currentState;
+	giveBadGuyFSM(graph, patrolLoc1, patrolLoc2);
+}
+
+void Boid::giveGoodGuyFSM(Graph* g)
 {
 	currentState = new EscapeState(this, g, new FlockState(this, nullptr));
 }
 
-void Boid::giveBadGuyFSM()
+void Boid::giveBadGuyFSM(Graph* g, position loc1, position loc2)
 {
-
+	currentState = new PatrolState(this, new EscapeState(this, g, nullptr), g, loc1, loc2);
 }
 
 position Boid::Seek(position seekTo)

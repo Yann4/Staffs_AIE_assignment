@@ -9,3 +9,5 @@ position normalise(position p);
 position truncate(position p, float maxMag);
 
 bool lineIntersection(position a, position b, position c, position d, position& pointOfIntersection);
+
+float distSquared(position a, position b);

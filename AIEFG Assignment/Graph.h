@@ -14,14 +14,13 @@ struct GraphNode
 {
 	NodeType type;
 	position pos;
+
 	GraphNode* up;
 	GraphNode* down;
 	GraphNode* left;
 	GraphNode* right;
 
 	GraphNode* parent;
-	bool opened;
-	bool closed;
 
 	float g_score;
 	float h_score;
@@ -32,8 +31,6 @@ struct GraphNode
 		r = 1.0f;
 		g = 1.0f;
 		b = 1.0f;
-		opened = false;
-		closed = false;
 		parent = nullptr;
 	}
 
@@ -42,8 +39,6 @@ struct GraphNode
 		r = 1.0f;
 		g = 1.0f;
 		b = 1.0f;
-		opened = false;
-		closed = false;
 		parent = nullptr;
 	}
 
@@ -66,8 +61,6 @@ struct GraphNode
 
 	void resetNode()
 	{
-		opened = false;
-		closed = false;
 		parent = nullptr;
 		g_score = 0;
 		h_score = 0;
@@ -77,7 +70,6 @@ struct GraphNode
 	{
 		return g_score + h_score;
 	}
-
 };
 
 class Graph

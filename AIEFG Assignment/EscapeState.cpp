@@ -62,16 +62,14 @@ bool EscapeState::shouldExit()
 
 	position boidPos = boid->getInfo().pos;
 
-	float distSq = ((boidPos.x - exit1.x) * (boidPos.x - exit1.x)) + ((boidPos.z - exit1.z) * (boidPos.z - exit1.z));
-	distSq = abs(distSq);
+	float distSq = distSquared(boidPos, exit1);
 
 	if (distSq < radius)
 	{
 		return true;
 	}
 
-	distSq = ((boidPos.x - exit2.x) * (boidPos.x - exit2.x)) + ((boidPos.z - exit2.z) * (boidPos.z - exit2.z));
-	distSq = abs(distSq);
+	distSq = distSquared(boidPos, exit2);
 
 	if (distSq < radius)
 	{

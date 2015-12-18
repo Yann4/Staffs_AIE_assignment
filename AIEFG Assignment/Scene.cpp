@@ -65,6 +65,16 @@ bool Scene::Initialise()
 	SetUpScenario();
 
 	dobby = new Boid(4, position(9.5, 20), graph, &walls);
+
+	position e11 = position(1.5, 18.5);
+	position e12 = position(7.5, 18.5);
+	position e21 = position(11.5, 18.5);
+	position e22 = position(19.5, 18.5);
+
+	enemies.push_back(new Boid('e', e11, graph, &walls));
+	enemies.push_back(new Boid('f', e21, graph, &walls));
+	enemies.at(0)->makeBadGuy(graph, e11, e12);
+	enemies.at(1)->makeBadGuy(graph, e21, e22);
 	return true;
 }
 
@@ -109,7 +119,6 @@ void Scene::Update(int a_deltaTime)
 
 void Scene::DrawScenario()
 {
-	graph->RenderGraph();
 	//Walls
 	for (unsigned int i = 0; i < m_iWallQty; i++)
 	{
@@ -122,7 +131,10 @@ void Scene::DrawScenario()
 	}
 	dobby->Render();
 
-	
+	for (Boid* b : enemies)
+	{
+		b->Render();
+	}
 }
 
 //Methods to set up pointer arrays to all the wall pieces.
@@ -270,7 +282,10 @@ void Scene::UpdateScenario(int a_deltaTime)
 
 	dobby->Update(a_deltaTime, info);
 
-	//graph->getNearestNode(dobby.getInfo().pos)->setColour(0, 1, 0);
+	for (Boid* b : enemies)
+	{
+		b->Update(a_deltaTime, info);
+	}
 
 	
 

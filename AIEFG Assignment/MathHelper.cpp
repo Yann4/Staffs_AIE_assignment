@@ -62,3 +62,9 @@ bool lineIntersection(position a, position b, position c, position d, position& 
 
 	return false;
 }
+
+float distSquared(position a, position b)
+{
+	float distSq = ((a.x - b.x) * (a.x - b.x)) + ((a.z - b.z) * (a.z - b.z));
+	return abs(distSq);
+}

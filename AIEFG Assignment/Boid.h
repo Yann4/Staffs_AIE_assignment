@@ -10,6 +10,7 @@
 #include "State.h"
 #include "EscapeState.h"
 #include "FlockState.h"
+#include "PatrolState.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -45,6 +46,7 @@ class Boid
 {
 	friend class EscapeState;
 	friend class FlockState;
+	friend class PatrolState;
 
 private:
 	int id;
@@ -78,6 +80,8 @@ public:
 	Boid(char id, position pos, Graph* g, std::vector<Wall>* walls);
 	Boid& operator=(const Boid&) = default;
 
+	void makeBadGuy(Graph* graph, position patrolLoc1, position patrolLoc2);
+
 	void Update(float delta, const std::vector<BoidInfo>& others);
 	void Render();
 	void resolveCollision(position moveBy);
@@ -86,8 +90,8 @@ public:
 	BoidInfo getInfo() { return BoidInfo(id, pos, velocity); }
 
 private:
-	void giveGoodGuyFSM();
-	void giveBadGuyFSM();
+	void giveGoodGuyFSM(Graph* g);
+	void giveBadGuyFSM(Graph* g, position l1, position l2);
 
 	void UpdateLocation(position steeringForce, float delta);
 
