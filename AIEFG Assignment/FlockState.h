@@ -11,7 +11,8 @@ class FlockState : public State
 {
 private:
 	Boid* boid;
-
+	int lifeTime;
+	int retirementAge = 10000;
 public:
 	FlockState(Boid* boid, State* sisterState);
 

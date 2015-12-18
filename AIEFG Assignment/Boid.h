@@ -11,6 +11,7 @@
 #include "EscapeState.h"
 #include "FlockState.h"
 #include "PatrolState.h"
+#include "BecomeObstacleState.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -22,11 +23,12 @@ struct BoidInfo
 	int id;
 	position pos;
 	position velocity;
+	bool target;
 
-	BoidInfo() :pos(position()), velocity(position()), id(-1)
+	BoidInfo() :pos(position()), velocity(position()), id(-1), target(false)
 	{}
 
-	BoidInfo(int id, position pos, position vel) : id(id), pos(pos), velocity(vel)
+	BoidInfo(int id, position pos, position vel, bool target) : id(id), pos(pos), velocity(vel), target(target)
 	{}
 };
 
@@ -47,6 +49,7 @@ class Boid
 	friend class EscapeState;
 	friend class FlockState;
 	friend class PatrolState;
+	friend class BecomeObstacleState;
 
 private:
 	int id;
@@ -75,6 +78,7 @@ private:
 
 	State* currentState;
 
+	bool isTarget;
 public:
 	Boid();
 	Boid(char id, position pos, Graph* g, std::vector<Wall>* walls);
@@ -87,7 +91,7 @@ public:
 	void resolveCollision(position moveBy);
 
 	Collision::BoundingBox getBoundingBox() { return Collision::BoundingBox(pos.x, pos.z, width, height); }
-	BoidInfo getInfo() { return BoidInfo(id, pos, velocity); }
+	BoidInfo getInfo() { return BoidInfo(id, pos, velocity, isTarget); }
 
 private:
 	void giveGoodGuyFSM(Graph* g);

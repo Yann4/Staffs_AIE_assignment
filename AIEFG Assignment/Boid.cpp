@@ -11,7 +11,7 @@ Boid::Boid()
 	red = 0;
 	green = 255;
 	blue = 0;
-
+	isTarget = false;
 	velocity = position(0, 0);
 	wanderTarget = pos;
 	width = 0.25;
@@ -32,7 +32,7 @@ Boid::Boid(char id, position pos, Graph* g, std::vector<Wall>* walls) : pos(pos)
 
 	width = 0.25;
 	height = 0.5;
-
+	isTarget = false;
 	giveGoodGuyFSM(g);
 	currentState->Enter();
 }
@@ -48,7 +48,7 @@ void Boid::makeBadGuy(Graph* graph, position patrolLoc1, position patrolLoc2)
 
 void Boid::giveGoodGuyFSM(Graph* g)
 {
-	currentState = new EscapeState(this, g, new FlockState(this, nullptr));
+	currentState = new EscapeState(this, g, new FlockState(this, new BecomeObstacleState(this, nullptr)));
 }
 
 void Boid::giveBadGuyFSM(Graph* g, position loc1, position loc2)
@@ -210,6 +210,7 @@ position Boid::WallAvoidance()
 	c = cos(-(rotation - feelerAngle) * M_PI / 180);
 	feelers[2] = position(pos.x + length * c, pos.z + length * s);
 
+	glColor3f(1.0, 1.0, 1.0);
 	glBegin(GL_LINES);
 		glVertex3f(pos.x, 1.0f, pos.z);
 		glVertex3f(feelers[0].x, 1.0f, feelers[0].z);
@@ -362,7 +363,7 @@ position Boid::followPath()
 
 void Boid::Update(float delta, const std::vector<BoidInfo>& others)
 {
-	delta = 0.03;
+	delta = 0.01;
 
 	currentState->Update(delta, others);
 }

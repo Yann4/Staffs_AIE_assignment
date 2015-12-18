@@ -4,6 +4,7 @@ PatrolState::PatrolState(Boid * boid, State * sisterState, Graph * graph, positi
 {
 	sister = sisterState;
 	currentGoal = start;
+	threshold = randomInRange(1, 10);
 }
 
 void PatrolState::Enter()
@@ -49,7 +50,16 @@ void PatrolState::Update(float delta, const std::vector<BoidInfo>& others)
 	position steeringForce = boid->followPath();
 	boid->UpdateLocation(steeringForce, delta);
 
-	if (shouldExit())
+	int targets = 0;
+	for (BoidInfo i : others)
+	{
+		if (i.target)
+		{
+			targets++;
+		}
+	}
+
+	if (shouldExit(targets))
 	{
 		Exit();
 	}
@@ -65,8 +75,11 @@ void PatrolState::Exit()
 	}
 }
 
-//Incorrect - just for testing
-bool PatrolState::shouldExit()
+bool PatrolState::shouldExit(int numTargets)
 {
+	if (numTargets >= threshold)
+	{
+		return true;
+	}
 	return false;
 }

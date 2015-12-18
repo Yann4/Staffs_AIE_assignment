@@ -18,6 +18,7 @@ private:
 	position start;
 	position end;
 	position currentGoal;
+	int threshold;
 
 public:
 	PatrolState(Boid* boid, State* sisterState, Graph * graph, position start, position end);
@@ -26,5 +27,6 @@ public:
 	void Update(float delta, const std::vector<BoidInfo>& others);
 	void Exit();
 
-	bool shouldExit();
+	bool shouldExit(int numTargets);
+	bool shouldExit(){ return false; }
 };

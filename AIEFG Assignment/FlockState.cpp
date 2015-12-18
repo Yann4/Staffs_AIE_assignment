@@ -7,6 +7,8 @@ FlockState::FlockState(Boid * boid, State * sisterState): boid(boid)
 
 void FlockState::Enter()
 {
+	lifeTime = 0;
+	boid->isTarget = true;
 }
 
 void FlockState::Update(float delta, const std::vector<BoidInfo>& others)
@@ -25,6 +27,11 @@ void FlockState::Update(float delta, const std::vector<BoidInfo>& others)
 	position steeringForce = boid->aggregateSteering(wander, separate, alignment, cohese, avoidWalls);
 
 	boid->UpdateLocation(steeringForce, delta);
+
+	if (shouldExit())
+	{
+		Exit();
+	}
 }
 
 void FlockState::Exit()
@@ -39,5 +46,13 @@ void FlockState::Exit()
 
 bool FlockState::shouldExit()
 {
-	return false;
+	if (lifeTime < retirementAge)
+	{
+		lifeTime++;
+		return false;
+	}
+	else
+	{
+		return true;
+	}
 }

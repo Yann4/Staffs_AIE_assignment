@@ -11,6 +11,7 @@ class BecomeObstacleState : public State
 {
 private:
 	Boid* boid;
+	position location;
 
 public:
 	BecomeObstacleState(Boid* boid, State* sisterState);
