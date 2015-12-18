@@ -11,23 +11,11 @@ Scene::Scene()
 	m_ScenarioOffset.x = 0.0f;
 	m_ScenarioOffset.z = 0.0f;
 
-	position mazeEntrypoint = position(9.5, 20);
-
-	position centre;
-	centre.x = 9.5;
-	centre.z = 10;
-
 	//Actual walls
 	walls.push_back(Wall(position(0, 12), position(0, 0)));
 	walls.push_back(Wall(position(0, 0), position(21, 0)));
 	walls.push_back(Wall(position(21, 0), position(21, 12)));
 	walls.push_back(Wall(position(21, 12), position(0, 12)));
-
-	for (int i = 0; i < NUM_BOIDS; i++)
-	{
-		position p = position(centre.x + randomInRange(-10, 10), centre.z + randomInRange(-10, 10));
-		//boids.push_back(Boid(i, p, &walls));
-	}
 
 	return;
 }
@@ -65,6 +53,9 @@ bool Scene::Initialise()
 	SetUpScenario();
 
 	dobby = new Boid(4, position(9.5, 20), graph, &walls);
+
+	position mazeEntrypoint = position(9.5, 20);
+	boids.push_back(new Boid(boids.size(), mazeEntrypoint, graph, &walls));
 
 	position e11 = position(1.5, 18.5);
 	position e12 = position(7.5, 18.5);
@@ -125,13 +116,15 @@ void Scene::DrawScenario()
 		m_pWalls[i]->Render();
 	}
 
-	for (Boid b : boids)
-	{
-	//	b.Render();
-	}
-	dobby->Render();
+
+	//dobby->Render();
 
 	for (Boid* b : enemies)
+	{
+		b->Render();
+	}
+
+	for (Boid* b : boids)
 	{
 		b->Render();
 	}
@@ -269,18 +262,24 @@ void Scene::SetUpScenario()
 void Scene::UpdateScenario(int a_deltaTime)
 {
 	std::vector<BoidInfo> info;
-	for (Boid b : boids)
-	{
-		info.push_back(b.getInfo());
-	}
-	info.push_back(dobby->getInfo());
 
-	for (int i = 0; i < NUM_BOIDS; i++)
+	for (Boid* b : boids)
 	{
-		//boids.at(i).Update(a_deltaTime, info);
+		info.push_back(b->getInfo());
 	}
 
-	dobby->Update(a_deltaTime, info);
+	if (info.at(info.size() - 1).target)
+	{
+		position mazeEntrypoint = position(9.5, 20);
+		boids.push_back(new Boid(boids.size(), mazeEntrypoint, graph, &walls));
+	}
+
+	for (Boid* b : boids)
+	{
+		b->Update(a_deltaTime, info);
+	}
+
+	//dobby->Update(a_deltaTime, info);
 
 	for (Boid* b : enemies)
 	{

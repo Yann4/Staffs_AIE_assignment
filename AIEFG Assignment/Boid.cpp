@@ -48,7 +48,7 @@ void Boid::makeBadGuy(Graph* graph, position patrolLoc1, position patrolLoc2)
 
 void Boid::giveGoodGuyFSM(Graph* g)
 {
-	currentState = new EscapeState(this, g, new FlockState(this, new BecomeObstacleState(this, nullptr)));
+	currentState = new EscapeState(this, g, new FlockState(this, new BecomeObstacleState(this, g, nullptr)));
 }
 
 void Boid::giveBadGuyFSM(Graph* g, position loc1, position loc2)

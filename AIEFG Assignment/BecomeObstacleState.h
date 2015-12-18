@@ -11,10 +11,11 @@ class BecomeObstacleState : public State
 {
 private:
 	Boid* boid;
+	Graph* graph;
 	position location;
 
 public:
-	BecomeObstacleState(Boid* boid, State* sisterState);
+	BecomeObstacleState(Boid* boid, Graph* graph, State* sisterState);
 
 	void Enter();
 	void Update(float delta, const std::vector<BoidInfo>& others);

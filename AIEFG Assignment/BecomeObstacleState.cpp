@@ -1,13 +1,14 @@
 #include "BecomeObstacleState.h"
 
-BecomeObstacleState::BecomeObstacleState(Boid * boid, State * sisterState): boid(boid)
+BecomeObstacleState::BecomeObstacleState(Boid * boid, Graph* graph, State * sisterState) : boid(boid), graph(graph)
 {
 	sister = sisterState;
 }
 
 void BecomeObstacleState::Enter()
 {
-	location = position(randomInRange(0, 21), randomInRange(0, 12));
+	location = position(randomInRange(0, 20), randomInRange(0, 11));
+	location = position((int)location.x + 0.5, (int)location.z + 0.5);
 	boid->isTarget = false;
 }
 
@@ -24,6 +25,7 @@ void BecomeObstacleState::Update(float delta, const std::vector<BoidInfo>& other
 	else
 	{
 		boid->pos = location;
+		graph->getNearestNode(location)->type = OBSTACLE;
 	}
 }
 

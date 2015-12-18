@@ -20,8 +20,7 @@ private:
 	unsigned int m_iWallQty;
 	position	 m_ScenarioOffset;
 
-	std::vector<Boid> boids;
-	int NUM_BOIDS = 20;
+	std::vector<Boid*> boids;
 
 	Boid* dobby;
 
