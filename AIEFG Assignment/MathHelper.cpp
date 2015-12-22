@@ -9,7 +9,7 @@ float randomInRange(float min, float max)
 	std::random_device rd;
 	std::mt19937 eng(rd());
 	std::uniform_real_distribution<> dist(min, max);
-	return dist(eng);
+	return (float)dist(eng);
 }
 
 position normalise(position p)

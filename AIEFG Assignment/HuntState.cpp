@@ -7,6 +7,12 @@ HuntState::HuntState(Boid* boid, State* sisterState) : boid(boid)
 	target = new BoidInfo(-99, position(), position(), false);
 }
 
+HuntState::~HuntState()
+{
+	delete target;
+	boid = nullptr; 
+}
+
 void HuntState::Enter()
 {
 	hunger = (int)randomInRange(1, 3);
@@ -86,7 +92,7 @@ bool HuntState::needNewTarget(const std::vector<BoidInfo>& others)
 
 void HuntState::selectTarget(const std::vector<BoidInfo>& others)
 {
-	int ind = 0;
+	unsigned int ind = 0;
 
 	while (ind + 1 < others.size() && !others.at(ind).target)
 	{

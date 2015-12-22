@@ -31,6 +31,8 @@ struct BoidInfo
 
 	BoidInfo(int id, position pos, position vel, bool target) : id(id), pos(pos), velocity(vel), target(target)
 	{}
+
+	~BoidInfo() {}
 };
 
 struct Wall
@@ -91,7 +93,7 @@ private:
 	bool renderWhiskers;
 public:
 	Boid();
-	Boid(char id, position pos, Graph* g, std::vector<Wall>* walls);
+	Boid(int id, position pos, Graph* g, std::vector<Wall>* walls);
 	Boid& operator=(const Boid&) = default;
 
 	void makeBadGuy(Graph* graph, position patrolLoc1, position patrolLoc2);

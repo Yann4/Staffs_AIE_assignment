@@ -21,7 +21,7 @@ Boid::Boid()
 	renderWhiskers = false;
 }
 
-Boid::Boid(char id, position pos, Graph* g, std::vector<Wall>* walls) : pos(pos), id(id), walls(walls)
+Boid::Boid(int id, position pos, Graph* g, std::vector<Wall>* walls) : pos(pos), id(id), walls(walls)
 {
 	red = 0;
 	green = 255;
@@ -260,7 +260,7 @@ position Boid::WallAvoidance()
 
 	for (position feeler : feelers)
 	{
-		for (int i = 0; i < walls->size(); i++)
+		for (unsigned int i = 0; i < walls->size(); i++)
 		{
 			position point;
 			if (lineIntersection(walls->at(i).start, walls->at(i).end, feeler, pos, point))

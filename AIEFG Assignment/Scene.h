@@ -29,6 +29,7 @@ private:
 
 	bool renderGraph;
 	int resetCounter;
+	int boidNum;
 
 public:
 	Scene();

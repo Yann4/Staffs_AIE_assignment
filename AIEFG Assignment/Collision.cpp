@@ -18,7 +18,7 @@ bool Collision::collision(BoundingBox self, BoundingBox other, MTV& mtv)
 		return false;
 	}
 
-	float dirMag = sqrt(mtv.direction.x * mtv.direction.x + mtv.direction.z * mtv.direction.z);
+	float dirMag = sqrtf(mtv.direction.x * mtv.direction.x + mtv.direction.z * mtv.direction.z);
 	mtv.direction = position(mtv.direction.x / dirMag, mtv.direction.z / dirMag);
 	mtv.magnitude *= 1.001f; //Small multiplier to make it not look weird.
 	

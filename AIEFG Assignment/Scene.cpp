@@ -19,6 +19,8 @@ Scene::Scene()
 
 	renderGraph = false;
 
+	boidNum = 0;
+
 	return;
 }
 
@@ -64,7 +66,7 @@ bool Scene::Initialise()
 	SetUpScenario();
 
 	position mazeEntrypoint = position(9.5, 20);
-	boids.push_back(new Boid(boids.size(), mazeEntrypoint, graph, &walls));
+	boids.push_back(new Boid(boidNum++, mazeEntrypoint, graph, &walls));
 
 	position e11 = position(1.5, 18.5);
 	position e12 = position(7.5, 18.5);
@@ -75,8 +77,8 @@ bool Scene::Initialise()
 	position e31 = position(1.5, 13.5);
 	position e32 = position(15.5, 13.5);
 
-	enemies.push_back(new Boid('e', e31, graph, &walls));
-	enemies.push_back(new Boid('f', e21, graph, &walls));
+	enemies.push_back(new Boid(boidNum++, e31, graph, &walls));
+	enemies.push_back(new Boid(boidNum++, e21, graph, &walls));
 	enemies.at(0)->makeBadGuy(graph, e31, e32);
 	enemies.at(1)->makeBadGuy(graph, e21, e22);
 
@@ -305,12 +307,12 @@ void Scene::UpdateScenario(int a_deltaTime)
 	if (info.size() > 0 && info.back().target)
 	{
 		position mazeEntrypoint = position(9.5, 20);
-		boids.push_back(new Boid(boids.size(), mazeEntrypoint, graph, &walls));
+		boids.push_back(new Boid(boidNum++, mazeEntrypoint, graph, &walls));
 	}
 	else if (info.size() == 0)
 	{
 		position mazeEntrypoint = position(9.5, 20);
-		boids.push_back(new Boid(boids.size(), mazeEntrypoint, graph, &walls));
+		boids.push_back(new Boid(boidNum++, mazeEntrypoint, graph, &walls));
 	}
 
 	for (Boid* b : boids)
@@ -323,6 +325,7 @@ void Scene::UpdateScenario(int a_deltaTime)
 		b->Update(a_deltaTime, info);
 		b->ExertInfluence(graph);
 		std::vector<char> idToDelete;
+
 		for (Boid* victim : boids)
 		{
 			Collision::MTV mtv;
@@ -334,7 +337,7 @@ void Scene::UpdateScenario(int a_deltaTime)
 
 		for (char c : idToDelete)
 		{
-			int index = 0;
+			size_t index = 0;
 
 			for (index = 0; index < boids.size(); index++)
 			{

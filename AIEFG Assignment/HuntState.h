@@ -16,7 +16,8 @@ private:
 
 public:
 	HuntState(Boid* boid, State* sisterState);
-	~HuntState() { delete target; boid = nullptr; }
+	~HuntState();
+
 	void giveSister(State* sister) { this->sister = sister; }
 
 	void Enter();

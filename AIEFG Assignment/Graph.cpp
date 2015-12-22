@@ -251,7 +251,7 @@ std::queue<GraphNode*> Graph::getPath(position a, position b, bool useInfluence)
 			//If not in the open set (new node)
 			bool inOpen = false;
 			int index = 0;
-			for (int o = 0; o < open.size(); o++)
+			for (unsigned int o = 0; o < open.size(); o++)
 			{
 				if (open.at(o)->pos.x == n->pos.x && open.at(o)->pos.z == n->pos.z)
 				{
