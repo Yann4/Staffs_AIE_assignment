@@ -17,6 +17,8 @@ Scene::Scene()
 	walls.push_back(Wall(position(21, 0), position(21, 12)));
 	walls.push_back(Wall(position(21, 12), position(0, 12)));
 
+	renderGraph = false;
+
 	return;
 }
 
@@ -40,7 +42,16 @@ Scene::~Scene()
 
 	delete graph;
 
-	delete dobby;
+	for (Boid* b : enemies)
+	{
+		delete b;
+	}
+
+	for (Boid* b : boids)
+	{
+		delete b;
+	}
+
 	return;
 }
 
@@ -52,20 +63,25 @@ bool Scene::Initialise()
 
 	SetUpScenario();
 
-	dobby = new Boid(4, position(9.5, 20), graph, &walls);
-
 	position mazeEntrypoint = position(9.5, 20);
 	boids.push_back(new Boid(boids.size(), mazeEntrypoint, graph, &walls));
 
 	position e11 = position(1.5, 18.5);
 	position e12 = position(7.5, 18.5);
+
 	position e21 = position(11.5, 18.5);
 	position e22 = position(19.5, 18.5);
 
-	enemies.push_back(new Boid('e', e11, graph, &walls));
+	position e31 = position(1.5, 13.5);
+	position e32 = position(15.5, 13.5);
+
+	enemies.push_back(new Boid('e', e31, graph, &walls));
 	enemies.push_back(new Boid('f', e21, graph, &walls));
-	enemies.at(0)->makeBadGuy(graph, e11, e12);
+	enemies.at(0)->makeBadGuy(graph, e31, e32);
 	enemies.at(1)->makeBadGuy(graph, e21, e22);
+
+	resetCounter = 0;
+
 	return true;
 }
 
@@ -103,6 +119,21 @@ void Scene::Render()
 void Scene::Update(int a_deltaTime)
 {
 	//Update the Scenario.
+
+	//Debug render options
+	if (GetAsyncKeyState(VK_F2) & 1)
+	{
+		bool state = boids.at(0)->getWhiskerState();
+		for (Boid* b : boids)
+		{
+			b->setWhiskerRender(!state);
+		}
+	}
+	if (GetAsyncKeyState(VK_F3) & 1)
+	{
+		renderGraph = !renderGraph;
+	}
+
 	UpdateScenario(a_deltaTime);
 }
 
@@ -116,9 +147,6 @@ void Scene::DrawScenario()
 		m_pWalls[i]->Render();
 	}
 
-
-	//dobby->Render();
-
 	for (Boid* b : enemies)
 	{
 		b->Render();
@@ -127,6 +155,12 @@ void Scene::DrawScenario()
 	for (Boid* b : boids)
 	{
 		b->Render();
+	}
+
+	if (renderGraph)
+	{
+		graph->RenderGraph();
+		graph->resetGraph();
 	}
 }
 
@@ -268,7 +302,12 @@ void Scene::UpdateScenario(int a_deltaTime)
 		info.push_back(b->getInfo());
 	}
 
-	if (info.at(info.size() - 1).target)
+	if (info.size() > 0 && info.back().target)
+	{
+		position mazeEntrypoint = position(9.5, 20);
+		boids.push_back(new Boid(boids.size(), mazeEntrypoint, graph, &walls));
+	}
+	else if (info.size() == 0)
 	{
 		position mazeEntrypoint = position(9.5, 20);
 		boids.push_back(new Boid(boids.size(), mazeEntrypoint, graph, &walls));
@@ -279,38 +318,34 @@ void Scene::UpdateScenario(int a_deltaTime)
 		b->Update(a_deltaTime, info);
 	}
 
-	//dobby->Update(a_deltaTime, info);
-
 	for (Boid* b : enemies)
 	{
 		b->Update(a_deltaTime, info);
+		b->ExertInfluence(graph);
+		std::vector<char> idToDelete;
+		for (Boid* victim : boids)
+		{
+			Collision::MTV mtv;
+			if (Collision::collision(b->getBoundingBox(), victim->getBoundingBox(), mtv))
+			{
+				idToDelete.push_back(victim->getInfo().id);
+			}
+		}
+
+		for (char c : idToDelete)
+		{
+			int index = 0;
+
+			for (index = 0; index < boids.size(); index++)
+			{
+				if (boids.at(index)->getInfo().id == c)
+				{
+					break;
+				}
+			}
+
+			boids.erase(boids.begin() + index);
+			b->ateTeapot();
+		}
 	}
-
-	
-
-	/*for (unsigned int i = 0; i < m_iWallQty; i++)
-	{
-		Collision::MTV mtv;
-		if (Collision::collision(boid.getBoundingBox(), m_pWalls[i]->getBoundingBox(), mtv))
-		{
-			position move = position(mtv.direction.x * mtv.magnitude, mtv.direction.z * mtv.magnitude);
-			boid.resolveCollision(move);
-		}
-		
-
-		if (Collision::collision(boid1.getBoundingBox(), m_pWalls[i]->getBoundingBox(), mtv))
-		{
-			position move = position(mtv.direction.x * mtv.magnitude, mtv.direction.z * mtv.magnitude);
-			boid1.resolveCollision(move);
-		}
-
-
-		if (Collision::collision(boid2.getBoundingBox(), m_pWalls[i]->getBoundingBox(), mtv))
-		{
-			position move = position(mtv.direction.x * mtv.magnitude, mtv.direction.z * mtv.magnitude);
-			boid2.resolveCollision(move);
-		}
-	}*/
 }
-
-//--------------------------------------------------------------------------------------------------------

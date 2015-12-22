@@ -41,6 +41,9 @@
     <ClCompile Include="PatrolState.cpp">
       <Filter>State Machine</Filter>
     </ClCompile>
+    <ClCompile Include="HuntState.cpp">
+      <Filter>State Machine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Enums.h" />
@@ -85,6 +88,10 @@
     <ClInclude Include="PatrolState.h">
       <Filter>State Machine</Filter>
     </ClInclude>
+    <ClInclude Include="HuntState.h">
+      <Filter>State Machine</Filter>
+    </ClInclude>
+    <ClInclude Include="LinkedList.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Agent">

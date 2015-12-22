@@ -12,12 +12,15 @@ class EscapeState : public State
 {
 private:
 	Boid* boid;
+
 	Graph* graph;
-	position exit1;
-	position exit2;
+	position exitLoc;
+
+	int numNodes;
+	bool useInfluence;
 
 public:
-	EscapeState(Boid* boid, Graph* graph, State* sisterState);
+	EscapeState(Boid* boid, Graph* graph, State* sisterState, bool useInfluence = true);
 	
 	void Enter();
 	void Update(float delta, const std::vector<BoidInfo>& others);

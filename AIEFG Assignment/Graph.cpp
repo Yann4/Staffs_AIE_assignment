@@ -157,28 +157,38 @@ void Graph::RenderGraph()
 
 GraphNode* Graph::getNearestNode(position p)
 {
-	position nodeLoc = position(round(p.x * 2) / 2, round(p.z * 2) / 2);
+	position nodeLoc = position(round(p.x * 2) / 2, round(p.z * 2) / 2); //Round to the nearest .5 (Centre of each node)
 	nodeLoc.x -= rootLocation.x;
 	nodeLoc.z -= rootLocation.z;
 
 	GraphNode* temp = root;
 	for (int x = 0; x < nodeLoc.x; x++)
 	{
-		temp = temp->right;
+		if (temp->right != nullptr)
+		{
+			temp = temp->right;
+		}
 	}
 
 	for (int y = 0; y < nodeLoc.z; y++)
 	{
-		temp = temp->down;
+		if (temp->down != nullptr)
+		{
+			temp = temp->down;
+		}
 	}
 	return temp;
 }
 
 //Uses A*, and constant cost between each node
-std::queue<GraphNode*> Graph::getPath(position a, position b)
+std::queue<GraphNode*> Graph::getPath(position a, position b, bool useInfluence)
 {
 	GraphNode* start = getNearestNode(a);
 	GraphNode* end = getNearestNode(b);
+	if (start == nullptr || end == nullptr)
+	{
+		return std::queue<GraphNode*>();
+	}
 
 	start->g_score = 0;
 	start->h_score = heuristic(start, end);
@@ -255,6 +265,10 @@ std::queue<GraphNode*> Graph::getPath(position a, position b)
 				n->parent = current;
 				n->g_score = tent_g;
 				n->h_score = heuristic(n, end);
+				if (useInfluence)
+				{
+					n->g_score += n->influence * 2;
+				}
 				open.push_back(n);
 				continue;
 			}
@@ -266,6 +280,10 @@ std::queue<GraphNode*> Graph::getPath(position a, position b)
 			open.at(index)->parent = current;
 			open.at(index)->g_score = tent_g;
 			open.at(index)->h_score = heuristic(open.at(index), end);
+			if (useInfluence)
+			{
+				n->h_score += n->influence * 20;
+			}
 		}
 	}
 
@@ -295,4 +313,26 @@ float Graph::heuristic(GraphNode * a, GraphNode * b)
 {
 	//Euclidian squared to eliminate repeated sqrt
 	return (b->pos.x - a->pos.x) * (b->pos.x - a->pos.x) + (b->pos.z - a->pos.z) * (b->pos.z - a->pos.z);
+}
+
+void Graph::resetGraph()
+{
+	GraphNode* temp = root;
+	int depth = 0;
+
+	while (temp != nullptr)
+	{
+		while (temp != nullptr)
+		{
+			temp->resetNode();
+			temp = temp->right;
+		}
+
+		temp = root;
+		for (int i = 0; i < depth; i++)
+		{
+			temp = temp->down;
+		}
+		depth++;
+	}
 }

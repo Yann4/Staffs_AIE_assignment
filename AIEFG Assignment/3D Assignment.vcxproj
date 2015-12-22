@@ -14,6 +14,7 @@
     <ProjectGuid>{3F5689D3-7C35-4BC9-8FC4-3F9436E92DBF}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <ProjectName>AIEFG Assignment</ProjectName>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -24,7 +25,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -100,6 +101,7 @@
     <ClCompile Include="EscapeState.cpp" />
     <ClCompile Include="FlockState.cpp" />
     <ClCompile Include="Graph.cpp" />
+    <ClCompile Include="HuntState.cpp" />
     <ClCompile Include="MathHelper.cpp" />
     <ClCompile Include="Obstacle.cpp" />
     <ClCompile Include="PatrolState.cpp" />
@@ -116,6 +118,8 @@
     <ClInclude Include="EscapeState.h" />
     <ClInclude Include="FlockState.h" />
     <ClInclude Include="Graph.h" />
+    <ClInclude Include="HuntState.h" />
+    <ClInclude Include="LinkedList.h" />
     <ClInclude Include="MathHelper.h" />
     <ClInclude Include="ObjectTypes.h" />
     <ClInclude Include="Obstacle.h" />

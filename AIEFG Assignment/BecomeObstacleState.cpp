@@ -1,8 +1,7 @@
 #include "BecomeObstacleState.h"
 
-BecomeObstacleState::BecomeObstacleState(Boid * boid, Graph* graph, State * sisterState) : boid(boid), graph(graph)
+BecomeObstacleState::BecomeObstacleState(Boid * boid, Graph* graph) : boid(boid), graph(graph)
 {
-	sister = sisterState;
 }
 
 void BecomeObstacleState::Enter()

@@ -42,6 +42,7 @@ void PatrolState::Update(float delta, const std::vector<BoidInfo>& others)
 		while (!pathQ.empty())
 		{
 			path.push(pathQ.front()->pos);
+			pathQ.front()->setInfluence(10);
 			pathQ.pop();
 		}
 		boid->givePath(path);
@@ -71,7 +72,6 @@ void PatrolState::Exit()
 	{
 		boid->currentState = sister;
 		boid->currentState->Enter();
-		delete this;
 	}
 }
 

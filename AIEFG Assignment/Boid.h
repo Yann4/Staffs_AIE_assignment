@@ -12,6 +12,7 @@
 #include "FlockState.h"
 #include "PatrolState.h"
 #include "BecomeObstacleState.h"
+#include "HuntState.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -50,6 +51,7 @@ class Boid
 	friend class FlockState;
 	friend class PatrolState;
 	friend class BecomeObstacleState;
+	friend class HuntState;
 
 private:
 	int id;
@@ -64,11 +66,11 @@ private:
 
 	position wanderTarget;
 
-	float wanderWeight = 0.5f;
+	float wanderWeight = 0.3f;
 
-	float alignWeight = 0.5f;
-	float coheseWeight = 0.3f;
-	float separateWeight = 0.5f;
+	float alignWeight = 1.0f;
+	float coheseWeight = 0.9f;
+	float separateWeight = 0.7f;
 
 	float avoidWallWeight = 10.0f;
 
@@ -77,8 +79,16 @@ private:
 	std::stack<position> path;
 
 	State* currentState;
+	EscapeState* escape;
+	FlockState* flock;
+	BecomeObstacleState* obstacle;
+
+	PatrolState* patrol;
+	HuntState* hunt;
 
 	bool isTarget;
+
+	bool renderWhiskers;
 public:
 	Boid();
 	Boid(char id, position pos, Graph* g, std::vector<Wall>* walls);
@@ -88,10 +98,17 @@ public:
 
 	void Update(float delta, const std::vector<BoidInfo>& others);
 	void Render();
+
+	void ExertInfluence(Graph* graph);
+
+	void ateTeapot();
 	void resolveCollision(position moveBy);
 
 	Collision::BoundingBox getBoundingBox() { return Collision::BoundingBox(pos.x, pos.z, width, height); }
 	BoidInfo getInfo() { return BoidInfo(id, pos, velocity, isTarget); }
+
+	bool getWhiskerState() { return renderWhiskers; }
+	void setWhiskerRender(bool wiskers);
 
 private:
 	void giveGoodGuyFSM(Graph* g);

@@ -15,7 +15,7 @@ private:
 	position location;
 
 public:
-	BecomeObstacleState(Boid* boid, Graph* graph, State* sisterState);
+	BecomeObstacleState(Boid* boid, Graph* graph);
 
 	void Enter();
 	void Update(float delta, const std::vector<BoidInfo>& others);

@@ -24,6 +24,7 @@ struct GraphNode
 
 	float g_score;
 	float h_score;
+	float influence;
 
 	float r, g, b;
 	GraphNode() :pos(position()), up(nullptr), down(nullptr), left(nullptr), right(nullptr), type(OPEN)
@@ -32,6 +33,7 @@ struct GraphNode
 		g = 1.0f;
 		b = 1.0f;
 		parent = nullptr;
+		influence = 0;
 	}
 
 	GraphNode(position pos, NodeType type, GraphNode* up, GraphNode* down, GraphNode* left, GraphNode* right) :pos(pos), up(up), down(down), left(left), right(right), type(type)
@@ -40,6 +42,7 @@ struct GraphNode
 		g = 1.0f;
 		b = 1.0f;
 		parent = nullptr;
+		influence = 0;
 	}
 
 	std::vector<GraphNode*> children()
@@ -64,11 +67,23 @@ struct GraphNode
 		parent = nullptr;
 		g_score = 0;
 		h_score = 0;
+		influence = 0;
+		r = 1;
+		g = 1;
+		b = 1;
 	}
 
 	float getF()
 	{
 		return g_score + h_score;
+	}
+
+	void setInfluence(float influenceVal)
+	{
+		influence += influenceVal;
+		g = 0;
+		b = 0;
+		r = 1;
 	}
 };
 
@@ -88,6 +103,8 @@ public:
 
 	GraphNode* getNearestNode(position p);
 
-	std::queue<GraphNode*> getPath(position a, position b);
+	std::queue<GraphNode*> getPath(position a, position b, bool useInfluence = false);
 	float heuristic(GraphNode* a, GraphNode* b);
+
+	void resetGraph();
 };

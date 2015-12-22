@@ -22,12 +22,13 @@ private:
 
 	std::vector<Boid*> boids;
 
-	Boid* dobby;
-
 	std::vector<Boid*> enemies;
 
 	std::vector<Wall> walls;
 	Graph* graph;
+
+	bool renderGraph;
+	int resetCounter;
 
 public:
 	Scene();

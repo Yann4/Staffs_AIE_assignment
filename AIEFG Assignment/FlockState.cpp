@@ -40,7 +40,6 @@ void FlockState::Exit()
 	{
 		boid->currentState = sister;
 		boid->currentState->Enter();
-		delete this;
 	}
 }
 

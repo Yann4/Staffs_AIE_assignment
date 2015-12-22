@@ -17,6 +17,8 @@ Boid::Boid()
 	width = 0.25;
 	height = 0.5;
 	walls = nullptr;
+
+	renderWhiskers = false;
 }
 
 Boid::Boid(char id, position pos, Graph* g, std::vector<Wall>* walls) : pos(pos), id(id), walls(walls)
@@ -33,8 +35,11 @@ Boid::Boid(char id, position pos, Graph* g, std::vector<Wall>* walls) : pos(pos)
 	width = 0.25;
 	height = 0.5;
 	isTarget = false;
+
 	giveGoodGuyFSM(g);
 	currentState->Enter();
+
+	renderWhiskers = false;
 }
 
 void Boid::makeBadGuy(Graph* graph, position patrolLoc1, position patrolLoc2)
@@ -44,16 +49,30 @@ void Boid::makeBadGuy(Graph* graph, position patrolLoc1, position patrolLoc2)
 
 	delete currentState;
 	giveBadGuyFSM(graph, patrolLoc1, patrolLoc2);
+	currentState->Enter();
+}
+
+void Boid::setWhiskerRender(bool whiskers)
+{
+	renderWhiskers = whiskers;
 }
 
 void Boid::giveGoodGuyFSM(Graph* g)
 {
-	currentState = new EscapeState(this, g, new FlockState(this, new BecomeObstacleState(this, g, nullptr)));
+	obstacle = new BecomeObstacleState(this, g);
+	flock = new FlockState(this, obstacle);
+	escape = new EscapeState(this, g, flock);
+
+	currentState = escape;
 }
 
 void Boid::giveBadGuyFSM(Graph* g, position loc1, position loc2)
 {
-	currentState = new PatrolState(this, new EscapeState(this, g, nullptr), g, loc1, loc2);
+	hunt = new HuntState(this, nullptr);
+	escape = new EscapeState(this, g, hunt, false);
+	patrol = new PatrolState(this, escape, g, loc1, loc2);
+	hunt->giveSister(patrol);
+	currentState = patrol;
 }
 
 position Boid::Seek(position seekTo)
@@ -75,7 +94,7 @@ position Boid::Seek(position seekTo)
 
 position Boid::Wander()
 {
-	float wanderJitter = 3;
+	float wanderJitter = 2;
 	float wanderDistance = 2;
 	float wanderRadius = 10;
 
@@ -210,21 +229,24 @@ position Boid::WallAvoidance()
 	c = cos(-(rotation - feelerAngle) * M_PI / 180);
 	feelers[2] = position(pos.x + length * c, pos.z + length * s);
 
-	glColor3f(1.0, 1.0, 1.0);
-	glBegin(GL_LINES);
-		glVertex3f(pos.x, 1.0f, pos.z);
-		glVertex3f(feelers[0].x, 1.0f, feelers[0].z);
-	glEnd();
+	if (renderWhiskers)
+	{
+		glColor3f(1.0, 1.0, 1.0);
+		glBegin(GL_LINES);
+			glVertex3f(pos.x, 1.0f, pos.z);
+			glVertex3f(feelers[0].x, 1.0f, feelers[0].z);
+		glEnd();
 
-	glBegin(GL_LINES);
-		glVertex3f(pos.x, 1.0f, pos.z);
-		glVertex3f(feelers[1].x, 1.0f, feelers[1].z);
-	glEnd();
-	
-	glBegin(GL_LINES);
-		glVertex3f(pos.x, 1.0f, pos.z);
-		glVertex3f(feelers[2].x, 1.0f, feelers[2].z);
-	glEnd();
+		glBegin(GL_LINES);
+			glVertex3f(pos.x, 1.0f, pos.z);
+			glVertex3f(feelers[1].x, 1.0f, feelers[1].z);
+		glEnd();
+
+		glBegin(GL_LINES);
+			glVertex3f(pos.x, 1.0f, pos.z);
+			glVertex3f(feelers[2].x, 1.0f, feelers[2].z);
+		glEnd();
+	}
 
 	//IP == Intersection Point
 	float distToIP = 0.0f;
@@ -298,13 +320,13 @@ position Boid::aggregateSteering(position& wander, position& separate, position&
 
 std::vector<BoidInfo> Boid::getNeighbourhood(const std::vector<BoidInfo>& allBoids)
 {
-	float radius = 2;
-	float fov = 180;
+	float radius = 4;
+	float fov = 360;
 	std::vector<BoidInfo> neighbours;
 
 	for (BoidInfo boid : allBoids)
 	{
-		if (boid.id == id)
+		if (boid.id == id || !boid.target)
 		{
 			continue;
 		}
@@ -363,7 +385,7 @@ position Boid::followPath()
 
 void Boid::Update(float delta, const std::vector<BoidInfo>& others)
 {
-	delta = 0.01;
+	delta = 0.03;
 
 	currentState->Update(delta, others);
 }
@@ -376,6 +398,54 @@ void Boid::Render()
 		glColor3f(red, green, blue);
 		glutSolidTeapot(0.25);
 	glPopMatrix();
+}
+
+void Boid::ExertInfluence(Graph * graph)
+{
+	float influenceVal = 200;
+	float falloff = 2;
+
+	GraphNode* temp = graph->getNearestNode(pos);
+	temp->setInfluence(influenceVal);
+	influenceVal /= falloff;
+	float rot = abs(rotation);
+
+	if(rot >= -45 && rot <= 45)
+	{
+		while (influenceVal > 1 && temp->right != nullptr && temp->right->type != OBSTACLE)
+		{
+			temp = temp->right;
+			temp->setInfluence(influenceVal);
+			influenceVal /= falloff;
+		}
+	}
+	else if (rot >= 46 && rot <= 135)
+	{
+		while (influenceVal > 1 && temp->up != nullptr && temp->up->type != OBSTACLE)
+		{
+			temp = temp->up;
+			temp->setInfluence(influenceVal);
+			influenceVal /= falloff;
+		}
+	}
+	else if (rot >= 136 && rot <= 225)
+	{
+		while (influenceVal > 1 && temp->left != nullptr && temp->left->type != OBSTACLE)
+		{
+			temp = temp->left;
+			temp->setInfluence(influenceVal);
+			influenceVal /= falloff;
+		}
+	}
+	else if (rot >= 226 && rot <= 315)
+	{
+		while (influenceVal > 1 && temp->down != nullptr && temp->down->type != OBSTACLE)
+		{
+			temp = temp->down;
+			temp->setInfluence(influenceVal);
+			influenceVal /= falloff;
+		}
+	}
 }
 
 void Boid::UpdateLocation(position steeringForce, float delta)
@@ -393,6 +463,11 @@ void Boid::UpdateLocation(position steeringForce, float delta)
 	position heading = normalise(velocity);
 	float deg = atan2(-heading.z, heading.x) * 180 / M_PI;
 	rotation = deg;
+}
+
+void Boid::ateTeapot()
+{
+	hunt->AccidentallyAte();
 }
 
 void Boid::resolveCollision(position moveBy)
