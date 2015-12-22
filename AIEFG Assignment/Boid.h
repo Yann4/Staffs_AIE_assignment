@@ -56,18 +56,23 @@ class Boid
 	friend class HuntState;
 
 private:
+	//General surface information
 	int id;
+	bool isTarget;
 	position pos;
 
 	position velocity;
 	float maxVelocity = 2.0f;
 
+	//Display/collision information info
 	float rotation;
-	float red, green, blue;
+
+	Colour colour;
+
 	float width, height;
 
+	//Steering behaviour values
 	position wanderTarget;
-
 	float wanderWeight = 0.3f;
 
 	float alignWeight = 1.0f;
@@ -75,26 +80,30 @@ private:
 	float separateWeight = 0.7f;
 
 	float avoidWallWeight = 10.0f;
-
 	std::vector<Wall>* walls;
 
+	//Path to follow
 	std::stack<position> path;
 
+	//Finite State Machine values
 	State* currentState;
-	EscapeState* escape;
+	
+	//Good guy
 	FlockState* flock;
 	BecomeObstacleState* obstacle;
-
+	//Both
+	EscapeState* escape;
+	//Bad guy
 	PatrolState* patrol;
 	HuntState* hunt;
 
-	bool isTarget;
-
+	//True if debug should be rendered
 	bool renderWhiskers;
 public:
 	Boid();
 	Boid(int id, position pos, Graph* g, std::vector<Wall>* walls);
 	Boid& operator=(const Boid&) = default;
+	~Boid();
 
 	void makeBadGuy(Graph* graph, position patrolLoc1, position patrolLoc2);
 

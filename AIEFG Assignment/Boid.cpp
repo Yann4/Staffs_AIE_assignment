@@ -1,40 +1,60 @@
 #include "Boid.h"
 #include <iostream>
 
+
 Boid::Boid()
 {
-	pos = position(0,0);
-	wanderTarget = position(0, 0);
+	id = -1;
+	isTarget = false;
+	pos = position();
+	velocity = position();
 
 	rotation = 0;
+	colour = Colour();
 
-	red = 0;
-	green = 255;
-	blue = 0;
-	isTarget = false;
-	velocity = position(0, 0);
-	wanderTarget = pos;
-	width = 0.25;
-	height = 0.5;
-	walls = nullptr;
+	width = 0;
+	height = 0;
 
 	renderWhiskers = false;
+
+	wanderTarget = position();
+
+	walls = nullptr;
+
+	path = std::stack<position>();
+
+	currentState = nullptr;
+
+	flock = nullptr;
+	obstacle = nullptr;
+	escape = nullptr;
+	patrol = nullptr;
+	hunt = nullptr;
+
 }
 
 Boid::Boid(int id, position pos, Graph* g, std::vector<Wall>* walls) : pos(pos), id(id), walls(walls)
 {
-	red = 0;
-	green = 255;
-	blue = 0;
+	isTarget = false;
+	velocity = position();
 
 	rotation = 0;
+	colour = Colour(0, 255, 0);
 
-	velocity = position(0, 0);
-	wanderTarget = pos;
+	width = 0.25f;
+	height = 0.5f;
 
-	width = 0.25;
-	height = 0.5;
-	isTarget = false;
+	wanderTarget = position();
+
+	path = std::stack<position>();
+
+	currentState = nullptr;
+
+	flock = nullptr;
+	obstacle = nullptr;
+	escape = nullptr;
+	patrol = nullptr;
+	hunt = nullptr;
 
 	giveGoodGuyFSM(g);
 	currentState->Enter();
@@ -42,12 +62,30 @@ Boid::Boid(int id, position pos, Graph* g, std::vector<Wall>* walls) : pos(pos),
 	renderWhiskers = false;
 }
 
+Boid::~Boid()
+{
+	currentState = nullptr;
+
+	if(flock != nullptr) delete flock;
+	if(obstacle != nullptr) delete obstacle;
+	if(escape != nullptr) delete escape;
+	if(patrol != nullptr) delete patrol;
+	if(hunt != nullptr) delete hunt;
+
+	walls = nullptr;
+}
+
 void Boid::makeBadGuy(Graph* graph, position patrolLoc1, position patrolLoc2)
 {
-	green = 0;
-	blue = 255;
+	colour = Colour(0, 0, 255);
 
-	delete currentState;
+	delete flock;
+	delete obstacle;
+	delete escape;
+	delete patrol;
+	delete hunt;
+	currentState = nullptr;
+
 	giveBadGuyFSM(graph, patrolLoc1, patrolLoc2);
 	currentState->Enter();
 }
@@ -77,17 +115,13 @@ void Boid::giveBadGuyFSM(Graph* g, position loc1, position loc2)
 
 position Boid::Seek(position seekTo)
 {
-	position desiredVel = seekTo;
-	desiredVel.x -= pos.x;
-	desiredVel.z -= pos.z;
+	position desiredVel = seekTo - pos;
 	
 	desiredVel = normalise(desiredVel);
 
-	desiredVel.x *= maxVelocity;
-	desiredVel.z *= maxVelocity;
+	desiredVel *= maxVelocity;
 
-	desiredVel.x -= velocity.x;
-	desiredVel.z -= velocity.z;
+	desiredVel -= velocity;
 
 	return desiredVel;
 }
@@ -98,13 +132,11 @@ position Boid::Wander()
 	float wanderDistance = 2;
 	float wanderRadius = 10;
 
-	wanderTarget.x += randomInRange(-1, 1) * wanderJitter;
-	wanderTarget.z += randomInRange(-1, 1) * wanderJitter;
+	wanderTarget += position(randomInRange(-1, 1) * wanderJitter, randomInRange(-1, 1) * wanderJitter);
 
 	wanderTarget = normalise(wanderTarget);
 
-	wanderTarget.x *= wanderRadius;
-	wanderTarget.z *= wanderRadius;
+	wanderTarget *= wanderRadius;
 
 	position targetLocal = wanderTarget;
 	targetLocal.x += wanderDistance;
@@ -117,10 +149,7 @@ position Boid::Wander()
 	targetWorld.x += cos(rotation) * (targetLocal.x) - sin(rotation) * (targetLocal.z);
 	targetWorld.z += sin(rotation) * (targetLocal.x) - cos(rotation) * (targetLocal.z);
 
-
-	position wanderForce = targetWorld;
-	wanderForce.x -= pos.x;
-	wanderForce.z -= pos.z;
+	position wanderForce = targetWorld - pos;
 
 	return wanderForce;
 }
@@ -136,18 +165,15 @@ position Boid::Alignment(const std::vector<BoidInfo>& neighbours)
 			continue;
 		}
 
-		steeringForce.x += neighbour.velocity.x;
-		steeringForce.z += neighbour.velocity.z;
+		steeringForce += neighbour.velocity;
 		count++;
 	}
 
 	if (count > 0)
 	{
-		steeringForce.x /= count;
-		steeringForce.z /= count;
+		steeringForce /= count;
 
-		steeringForce.x -= velocity.x;
-		steeringForce.z -= velocity.z;
+		steeringForce -= velocity;
 	}
 
 	return steeringForce;
@@ -166,15 +192,13 @@ position Boid::Cohesion(const std::vector<BoidInfo>& neighbours)
 			continue;
 		}
 
-		centreOfMass.x += neighbour.pos.x;
-		centreOfMass.z += neighbour.pos.z;
+		centreOfMass += neighbour.pos;
 		count++;
 	}
 
 	if (count > 0)
 	{
-		centreOfMass.x /= count;
-		centreOfMass.z /= count;
+		centreOfMass /= count;
 
 		steeringForce = Seek(centreOfMass);
 	}
@@ -191,17 +215,13 @@ position Boid::Separation(const std::vector<BoidInfo>& neighbours)
 		{
 			continue;
 		}
-		position toBoid = pos;
-		toBoid.x -= neighbour.pos.x;
-		toBoid.z -= neighbour.pos.z;
+		position toBoid = pos - neighbour.pos;
 
 		float dist = sqrt(toBoid.x * toBoid.x + toBoid.z * toBoid.z);
 		toBoid = normalise(toBoid);
-		toBoid.x /= dist;
-		toBoid.x /= dist;
+		toBoid /= dist;
 
-		steeringForce.x += toBoid.x;
-		steeringForce.z += toBoid.z;
+		steeringForce += toBoid;
 	}
 
 	return steeringForce;
@@ -220,6 +240,7 @@ position Boid::WallAvoidance()
 	float s = sin(-rotation * M_PI / 180);
 	float c = cos(-rotation * M_PI / 180);
 	feelers[0] = position(pos.x + length * c, pos.z + length * s);
+
 	float feelerAngle = 50;
 	s = sin(-(rotation + feelerAngle) * M_PI / 180);
 	c = cos(-(rotation + feelerAngle) * M_PI / 180);
@@ -279,9 +300,7 @@ position Boid::WallAvoidance()
 
 		if (closestWall >= 0)
 		{
-			position overshoot = feeler;
-			overshoot.x -= closestPoint.x;
-			overshoot.z -= closestPoint.z;
+			position overshoot = feeler - closestPoint;
 
 			float multiplier = 15;
 			
@@ -300,20 +319,15 @@ position Boid::aggregateSteering(position& wander, position& separate, position&
 {
 	position steerForce = position(0, 0);
 
-	steerForce.x += wander.x * wanderWeight;
-	steerForce.z += wander.z * wanderWeight;
+	steerForce += wander * wanderWeight;
 
-	steerForce.x += separate.x * separateWeight;
-	steerForce.z += separate.z * separateWeight;
+	steerForce += separate * separateWeight;
 
-	steerForce.x += align.x * alignWeight;
-	steerForce.z += align.z * alignWeight;
+	steerForce += align * alignWeight;
 
-	steerForce.x += cohese.x * coheseWeight;
-	steerForce.z += cohese.z * coheseWeight;
+	steerForce += cohese * coheseWeight;
 
-	steerForce.x += avoidWalls.x * avoidWallWeight;
-	steerForce.z += avoidWalls.z * avoidWallWeight;
+	steerForce += avoidWalls * avoidWallWeight;
 
 	return steerForce;
 }
@@ -337,9 +351,7 @@ std::vector<BoidInfo> Boid::getNeighbourhood(const std::vector<BoidInfo>& allBoi
 			continue;
 		}
 
-		position vecToOther = pos;
-		vecToOther.x -= boid.pos.x;
-		vecToOther.z -= boid.pos.z;
+		position vecToOther = pos - boid.pos;
 
 		vecToOther = normalise(vecToOther);
 		position heading = normalise(velocity);
@@ -395,7 +407,7 @@ void Boid::Render()
 	glPushMatrix();
 		glTranslatef(pos.x, 0.5f, pos.z);
 		glRotatef(rotation, 0, 1, 0);
-		glColor3f(red, green, blue);
+		glColor3f(colour.r, colour.g, colour.b);
 		glutSolidTeapot(0.25);
 	glPopMatrix();
 }
@@ -451,12 +463,10 @@ void Boid::ExertInfluence(Graph * graph)
 void Boid::UpdateLocation(position steeringForce, float delta)
 {
 	//Update position based on old velocity and accelleration (mass is 1)
-	pos.x += (velocity.x * delta) + 0.5f * (steeringForce.x * (delta * delta));
-	pos.z += (velocity.z * delta) + 0.5f * (steeringForce.z * (delta * delta));
+	pos += (velocity * delta) + ((steeringForce * (delta * delta) * 0.5f));
 
 	//Update velocity
-	velocity.x += steeringForce.x * delta;
-	velocity.z += steeringForce.z * delta;
+	velocity += steeringForce * delta;
 	velocity = truncate(velocity, maxVelocity);
 
 	//Update rotation
@@ -472,6 +482,5 @@ void Boid::ateTeapot()
 
 void Boid::resolveCollision(position moveBy)
 {
-	pos.x += moveBy.x;
-	pos.z += moveBy.z;
+	pos += moveBy;
 }

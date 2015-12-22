@@ -52,8 +52,58 @@ struct position
 	position() :x(0), z(0) {}
 	position(float x, float z) :x(x), z(z) {}
 
+	position& operator+=(const position& rhs)
+	{
+		x += rhs.x;
+		z += rhs.z;
+		return *this;
+	}
 
+	position& operator-=(const position& rhs)
+	{
+		x -= rhs.x;
+		z -= rhs.z;
+		return *this;
+	}
+
+	position& operator*=(const float rhs)
+	{
+		x *= rhs;
+		z *= rhs;
+		return *this;
+	}
+
+	position& operator/=(const float rhs)
+	{
+		x /= rhs;
+		z /= rhs;
+		return *this;
+	}
 };
+
+inline position operator+(position lhs, const position& rhs)
+{
+	lhs += rhs;
+	return lhs;
+}
+
+inline position operator-(position lhs, const position& rhs)
+{
+	lhs -= rhs;
+	return lhs;
+}
+
+inline position operator*(position lhs, const float rhs)
+{
+	lhs *= rhs;
+	return lhs;
+}
+
+inline position operator/(position lhs, const float rhs)
+{
+	lhs /= rhs;
+	return lhs;
+}
 
 //Edge cost
 typedef struct
@@ -62,6 +112,14 @@ typedef struct
 	int waypointID_To;
 	int cost;
 }edge_type;
+
+struct Colour
+{
+	float r, g, b;
+
+	Colour() :r(0), g(0), b(0) {}
+	Colour(float red, float green, float blue) :r(red), g(green), b(blue) {}
+};
 
 //Scene
 #define SCENARIO_WALL_QUANTITY		95
